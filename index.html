@@ -394,21 +394,6 @@
     </div>
   </div>
 
-  <!-- Section: 批注逾期 -->
-  <div class="section-title">批注逾期分析</div>
-  <div class="chart-grid">
-    <div class="card">
-      <div class="card-title">按部门 · 批注逾期平均时长</div>
-      <div class="card-subtitle">逾期批注平均时长（小时），共 38 条逾期记录</div>
-      <canvas id="chartAnnotationDept"></canvas>
-    </div>
-    <div class="card">
-      <div class="card-title">按主管 · 批注逾期条数 & 平均时长</div>
-      <div class="card-subtitle">各主管负责的逾期批注条数与平均时长</div>
-      <canvas id="chartAnnotationMgr"></canvas>
-    </div>
-  </div>
-
   <!-- Section: AI率分布 -->
   <div class="section-title">AI率分布分析</div>
   <div class="chart-grid">
@@ -638,7 +623,6 @@ const totalPS = DATA.dept_delivery["总体"].find(d => d.type === "PS");
 const kpiConfig = [
   { label: '本周AI检测总量', value: DATA.ai.total, suffix: '篇', color: 'blue', sub: '整体平均AI率 ' + DATA.ai.avg + '%' },
   { label: '提纲设置逾期', value: DATA.outline_overdue_persons.reduce((s,p)=>s+p.overdue,0), suffix: '人', color: 'red', sub: '王婉秋(2)、夏艺(1)、姚家鑫(1)' },
-  { label: '批注逾期记录', value: DATA.annotation.total, suffix: '条', color: 'amber', sub: '交付七部平均最长 458h' },
   { label: 'PS平均交付天数', value: totalPS ? totalPS.avg_days : 10.3, suffix: '天', color: 'green', sub: 'PS超期率 ' + (totalPS ? totalPS.exceed_rate : 15.03) + '%' },
   { label: '无腾会记录', value: DATA.no_meeting.total, suffix: '个', color: 'purple', sub: '交付一部最多(8个)' },
   { label: 'PS平均超期率', value: '15.03', suffix: '%', color: 'cyan', sub: '交付七部最高 26.88%' }
@@ -757,87 +741,7 @@ kpiConfig.forEach(kpi => {
 })();
 
 // ============================================================
-// 5. 批注逾期 - 按部门平均时长
-// ============================================================
-(function() {
-  const depts = Object.keys(DATA.annotation.by_dept);
-  const avgs = depts.map(d => DATA.annotation.by_dept[d].avg);
-  const colors = avgs.map(v => v > 400 ? '#ef4444' : v > 300 ? '#f59e0b' : '#10b981');
-  new Chart(document.getElementById('chartAnnotationDept'), {
-    type: 'bar',
-    data: {
-      labels: depts,
-      datasets: [
-        { label: '平均逾期时长(h)', data: avgs, backgroundColor: colors, borderRadius: 4 }
-      ]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
-    }
-  });
-})();
-
-// ============================================================
-// 5b. 批注逾期 - 按主管汇总
-// ============================================================
-(function() {
-  // 从 detail 汇总：按主管统计条数和平均时长
-  const mgrMap = {};
-  DATA.annotation.detail.forEach(row => {
-    if (!mgrMap[row.mgr]) mgrMap[row.mgr] = { count: 0, totalHours: 0 };
-    mgrMap[row.mgr].count++;
-    mgrMap[row.mgr].totalHours += row.hours;
-  });
-  // 按条数降序排列
-  const mgrs = Object.keys(mgrMap).sort((a, b) => mgrMap[b].count - mgrMap[a].count);
-  const counts = mgrs.map(m => mgrMap[m].count);
-  const avgHours = mgrs.map(m => +(mgrMap[m].totalHours / mgrMap[m].count).toFixed(1));
-  const barColors = counts.map(c => c >= 3 ? '#ef4444' : c >= 2 ? '#f59e0b' : '#3b82f6');
-
-  new Chart(document.getElementById('chartAnnotationMgr'), {
-    type: 'bar',
-    data: {
-      labels: mgrs,
-      datasets: [
-        {
-          label: '逾期条数',
-          data: counts,
-          backgroundColor: barColors,
-          borderRadius: 4,
-          yAxisID: 'y1'
-        },
-        {
-          label: '平均时长(h)',
-          data: avgHours,
-          type: 'line',
-          borderColor: '#8b5cf6',
-          backgroundColor: 'rgba(139,92,246,0.12)',
-          borderWidth: 2,
-          pointRadius: 4,
-          pointBackgroundColor: '#8b5cf6',
-          yAxisID: 'y2',
-          tension: 0.3
-        }
-      ]
-    },
-    options: {
-      responsive: true, maintainAspectRatio: true,
-      plugins: {
-        legend: { display: true, position: 'top' }
-      },
-      scales: {
-        x: { grid: { display: false }, ticks: { maxRotation: 30 } },
-        y1: { beginAtZero: true, position: 'left', ticks: { stepSize: 1 }, title: { display: true, text: '条数' } },
-        y2: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '平均时长(h)' } }
-      }
-    }
-  });
-})();
-
-// ============================================================
-// 6. AI率 - 按文案主管
+// 5. AI率 - 按文案主管
 // ============================================================
 (function() {
   const mgrs = Object.keys(DATA.ai.by_mgr);
