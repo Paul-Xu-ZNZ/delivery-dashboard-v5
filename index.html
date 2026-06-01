@@ -403,22 +403,9 @@
       <canvas id="chartAnnotationDept"></canvas>
     </div>
     <div class="card">
-      <div class="card-title">批注逾期明细</div>
-      <div class="card-subtitle">逾期时长较长的明细记录（时长最长 Top 10）</div>
-      <div style="overflow-x: auto; max-height: 320px; overflow-y: auto;">
-        <table class="data-table" id="annotationDetailTable">
-          <thead>
-            <tr>
-              <th>客户姓名</th>
-              <th>文书类型</th>
-              <th class="num">逾期时长(h)</th>
-              <th>主管</th>
-              <th>部门</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
+      <div class="card-title">按主管 · 批注逾期条数 & 平均时长</div>
+      <div class="card-subtitle">各主管负责的逾期批注条数与平均时长</div>
+      <canvas id="chartAnnotationMgr"></canvas>
     </div>
   </div>
 
@@ -434,44 +421,6 @@
       <div class="card-title">按部门 · AI率分布</div>
       <div class="card-subtitle">各部门 AI 率档位占比（0-20% / 20-50% / 50%+）</div>
       <canvas id="chartAiRateDept"></canvas>
-    </div>
-  </div>
-
-  <!-- Section: 网申变更 -->
-  <div class="section-title">网申时间变更分析</div>
-  <div class="chart-grid">
-    <div class="card full-width">
-      <div class="card-title">修改预计网申时间 · 销售顾问排行</div>
-      <div class="card-subtitle">本周各销售顾问修改网申时间次数（按次数降序）</div>
-      <div id="dateChangeBars"></div>
-    </div>
-  </div>
-
-  <!-- Section: 逾期未提交网申 -->
-  <div class="section-title">逾期未提交网申</div>
-  <div class="chart-grid">
-    <div class="card">
-      <div class="card-title">按组别 · 逾期未提交网申数量</div>
-      <div class="card-subtitle">共 48 条（部分记录 detail 较多）</div>
-      <canvas id="chartOverdueApp"></canvas>
-    </div>
-    <div class="card">
-      <div class="card-title">逾期未提交网申明细</div>
-      <div class="card-subtitle">各客户逾期提交情况（截至 5.31）</div>
-      <div style="overflow-x: auto; max-height: 320px; overflow-y: auto;">
-        <table class="data-table" id="overdueAppTable">
-          <thead>
-            <tr>
-              <th>客户姓名</th>
-              <th>销售顾问</th>
-              <th>所属组</th>
-              <th>项目</th>
-              <th>截止日期</th>
-            </tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </div>
     </div>
   </div>
 
@@ -692,7 +641,7 @@ const kpiConfig = [
   { label: '批注逾期记录', value: DATA.annotation.total, suffix: '条', color: 'amber', sub: '交付七部平均最长 458h' },
   { label: 'PS平均交付天数', value: totalPS ? totalPS.avg_days : 10.3, suffix: '天', color: 'green', sub: 'PS超期率 ' + (totalPS ? totalPS.exceed_rate : 15.03) + '%' },
   { label: '无腾会记录', value: DATA.no_meeting.total, suffix: '个', color: 'purple', sub: '交付一部最多(8个)' },
-  { label: '逾期未提交网申', value: DATA.overdue_app.total, suffix: '条', color: 'cyan', sub: '王婉秋组最多(6条)' }
+  { label: 'PS平均超期率', value: '15.03', suffix: '%', color: 'cyan', sub: '交付七部最高 26.88%' }
 ];
 
 const kpiGrid = document.getElementById('kpiGrid');
@@ -828,18 +777,62 @@ kpiConfig.forEach(kpi => {
       scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
     }
   });
+})();
 
-  // 批注逾期明细表
-  const tbody = document.querySelector('#annotationDetailTable tbody');
+// ============================================================
+// 5b. 批注逾期 - 按主管汇总
+// ============================================================
+(function() {
+  // 从 detail 汇总：按主管统计条数和平均时长
+  const mgrMap = {};
   DATA.annotation.detail.forEach(row => {
-    const heatClass = row.hours > 500 ? 'highlight-red' : row.hours > 200 ? '' : 'highlight-green';
-    tbody.innerHTML += `<tr>
-      <td>${row.name}</td>
-      <td>${row.type}</td>
-      <td class="num ${heatClass}">${row.hours}</td>
-      <td>${row.mgr}</td>
-      <td>${row.dept}</td>
-    </tr>`;
+    if (!mgrMap[row.mgr]) mgrMap[row.mgr] = { count: 0, totalHours: 0 };
+    mgrMap[row.mgr].count++;
+    mgrMap[row.mgr].totalHours += row.hours;
+  });
+  // 按条数降序排列
+  const mgrs = Object.keys(mgrMap).sort((a, b) => mgrMap[b].count - mgrMap[a].count);
+  const counts = mgrs.map(m => mgrMap[m].count);
+  const avgHours = mgrs.map(m => +(mgrMap[m].totalHours / mgrMap[m].count).toFixed(1));
+  const barColors = counts.map(c => c >= 3 ? '#ef4444' : c >= 2 ? '#f59e0b' : '#3b82f6');
+
+  new Chart(document.getElementById('chartAnnotationMgr'), {
+    type: 'bar',
+    data: {
+      labels: mgrs,
+      datasets: [
+        {
+          label: '逾期条数',
+          data: counts,
+          backgroundColor: barColors,
+          borderRadius: 4,
+          yAxisID: 'y1'
+        },
+        {
+          label: '平均时长(h)',
+          data: avgHours,
+          type: 'line',
+          borderColor: '#8b5cf6',
+          backgroundColor: 'rgba(139,92,246,0.12)',
+          borderWidth: 2,
+          pointRadius: 4,
+          pointBackgroundColor: '#8b5cf6',
+          yAxisID: 'y2',
+          tension: 0.3
+        }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: {
+        legend: { display: true, position: 'top' }
+      },
+      scales: {
+        x: { grid: { display: false }, ticks: { maxRotation: 30 } },
+        y1: { beginAtZero: true, position: 'left', ticks: { stepSize: 1 }, title: { display: true, text: '条数' } },
+        y2: { beginAtZero: true, position: 'right', grid: { drawOnChartArea: false }, title: { display: true, text: '平均时长(h)' } }
+      }
+    }
   });
 })();
 
@@ -902,66 +895,7 @@ kpiConfig.forEach(kpi => {
 })();
 
 // ============================================================
-// 8. 网申时间变更 - 横向 bar
-// ============================================================
-(function() {
-  const changes = DATA.date_changes;
-  const maxCount = changes[0].count;
-  const groupColors = {};
-  const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4'];
-  let colorIdx = 0;
-  const wrap = document.getElementById('dateChangeBars');
-  changes.forEach(r => {
-    if (!groupColors[r.group]) groupColors[r.group] = palette[colorIdx++ % palette.length];
-    const pct = (r.count / maxCount * 100).toFixed(1);
-    wrap.innerHTML += `
-      <div class="reason-bar-wrap">
-        <div class="reason-label">${r.sales}<span style="color:#94a3b8;font-size:11px;margin-left:4px">(${r.group})</span></div>
-        <div class="reason-bar-bg">
-          <div class="reason-bar" style="width:${pct}%;background:${groupColors[r.group]};">${r.count}次</div>
-        </div>
-        <div class="reason-count">${r.count}</div>
-      </div>`;
-  });
-})();
-
-// ============================================================
-// 9. 逾期未提交网申 - 按组别柱图
-// ============================================================
-(function() {
-  const groups = Object.keys(DATA.overdue_app.by_group);
-  const counts = groups.map(g => DATA.overdue_app.by_group[g]);
-  const colors = counts.map(c => c >= 5 ? '#ef4444' : c >= 3 ? '#f59e0b' : '#3b82f6');
-  new Chart(document.getElementById('chartOverdueApp'), {
-    type: 'bar',
-    data: {
-      labels: groups,
-      datasets: [
-        { label: '逾期条数', data: counts, backgroundColor: colors, borderRadius: 4 }
-      ]
-    },
-    options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { grid: { display: false } } }
-    }
-  });
-
-  // 逾期未提交网申明细
-  const tbody = document.querySelector('#overdueAppTable tbody');
-  DATA.overdue_app.detail.forEach(row => {
-    tbody.innerHTML += `<tr>
-      <td>${row.name}</td>
-      <td>${row.sales}</td>
-      <td>${row.group}</td>
-      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${row.project}">${row.project}</td>
-      <td><span class="tag tag-red">${row.deadline}</span></td>
-    </tr>`;
-  });
-})();
-
-// ============================================================
-// 10. 无腾会记录 - 按部门横向 bar
+// 8. 无腾会记录 - 按部门横向 bar
 // ============================================================
 (function() {
   const depts = Object.keys(DATA.no_meeting.by_dept);
@@ -984,7 +918,7 @@ kpiConfig.forEach(kpi => {
 })();
 
 // ============================================================
-// 11. 提纲逾期明细表
+// 9. 提纲逾期明细表
 // ============================================================
 (function() {
   const tbody = document.querySelector('#outlineDetailTable tbody');
