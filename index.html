@@ -1,0 +1,1004 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>交付时效数据看板 | 5.25-5.31</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<style>
+  :root {
+    --bg: #f0f2f5;
+    --card: #ffffff;
+    --text: #1e293b;
+    --text-secondary: #64748b;
+    --border: #e2e8f0;
+    --blue: #3b82f6;
+    --blue-light: #eff6ff;
+    --red: #ef4444;
+    --red-light: #fef2f2;
+    --amber: #f59e0b;
+    --amber-light: #fffbeb;
+    --green: #10b981;
+    --green-light: #ecfdf5;
+    --purple: #8b5cf6;
+    --purple-light: #f5f3ff;
+    --cyan: #06b6d4;
+    --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.07), 0 2px 4px -2px rgba(0,0,0,0.05);
+    --radius: 12px;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+    min-height: 100vh;
+  }
+
+  .dashboard {
+    max-width: 1440px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+    padding-bottom: 16px;
+    border-bottom: 2px solid var(--border);
+  }
+  .header h1 {
+    font-size: 24px;
+    font-weight: 700;
+    color: var(--text);
+  }
+  .header h1 span { color: var(--blue); }
+  .header .meta {
+    font-size: 13px;
+    color: var(--text-secondary);
+  }
+  .header .meta strong {
+    color: var(--text);
+    font-weight: 600;
+  }
+
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  .kpi-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+    border-left: 4px solid transparent;
+    transition: transform 0.15s, box-shadow 0.15s;
+  }
+  .kpi-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+  }
+  .kpi-card.blue { border-left-color: var(--blue); }
+  .kpi-card.red { border-left-color: var(--red); }
+  .kpi-card.amber { border-left-color: var(--amber); }
+  .kpi-card.green { border-left-color: var(--green); }
+  .kpi-card.purple { border-left-color: var(--purple); }
+  .kpi-card.cyan { border-left-color: var(--cyan); }
+
+  .kpi-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-bottom: 8px;
+    font-weight: 500;
+  }
+  .kpi-value {
+    font-size: 32px;
+    font-weight: 800;
+    line-height: 1.1;
+  }
+  .kpi-card.blue .kpi-value { color: var(--blue); }
+  .kpi-card.red .kpi-value { color: var(--red); }
+  .kpi-card.amber .kpi-value { color: var(--amber); }
+  .kpi-card.green .kpi-value { color: var(--green); }
+  .kpi-card.purple .kpi-value { color: var(--purple); }
+  .kpi-card.cyan .kpi-value { color: var(--cyan); }
+
+  .kpi-sub {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 6px;
+  }
+
+  .chart-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-bottom: 24px;
+  }
+  .chart-grid .full-width {
+    grid-column: 1 / -1;
+  }
+
+  .card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--shadow);
+  }
+  .card-title {
+    font-size: 15px;
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+  }
+  .card-subtitle {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 16px;
+  }
+  .card canvas {
+    max-height: 320px;
+  }
+
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .data-table th {
+    background: #f8fafc;
+    padding: 10px 12px;
+    text-align: left;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  .data-table td {
+    padding: 10px 12px;
+    border-bottom: 1px solid #f1f5f9;
+  }
+  .data-table tr:hover td {
+    background: #f8fafc;
+  }
+  .data-table .num {
+    text-align: right;
+    font-variant-numeric: tabular-nums;
+  }
+  .data-table .highlight-red {
+    color: var(--red);
+    font-weight: 700;
+  }
+  .data-table .highlight-green {
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .tag {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-size: 11px;
+    font-weight: 600;
+  }
+  .tag-red { background: var(--red-light); color: var(--red); }
+  .tag-amber { background: var(--amber-light); color: #b45309; }
+  .tag-green { background: var(--green-light); color: #059669; }
+  .tag-blue { background: var(--blue-light); color: var(--blue); }
+
+  .reason-bar-wrap {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .reason-label {
+    min-width: 200px;
+    font-size: 12px;
+    text-align: right;
+    color: var(--text);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .reason-bar-bg {
+    flex: 1;
+    height: 28px;
+    background: #f1f5f9;
+    border-radius: 6px;
+    overflow: hidden;
+    position: relative;
+  }
+  .reason-bar {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.6s ease;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    min-width: fit-content;
+  }
+  .reason-count {
+    min-width: 40px;
+    font-size: 13px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+  }
+
+  /* Heatmap table */
+  .heatmap-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+  }
+  .heatmap-table th {
+    background: #f8fafc;
+    padding: 12px 16px;
+    text-align: center;
+    font-weight: 600;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--border);
+    font-size: 12px;
+  }
+  .heatmap-table th:first-child {
+    text-align: left;
+  }
+  .heatmap-table td {
+    padding: 12px 16px;
+    text-align: center;
+    border-bottom: 1px solid #f1f5f9;
+    font-variant-numeric: tabular-nums;
+  }
+  .heatmap-table td:first-child {
+    text-align: left;
+    font-weight: 600;
+    color: var(--text);
+  }
+  .heatmap-table tbody tr:hover td {
+    background: #f8fafc;
+  }
+  .heatmap-table .total-row td {
+    font-weight: 700;
+    background: #f8fafc;
+    border-top: 2px solid var(--border);
+  }
+  .heat-0 { background: #ecfdf5; color: #059669; }
+  .heat-1 { background: #fefce8; color: #a16207; }
+  .heat-2 { background: #fef2f2; color: #dc2626; }
+
+  /* No-meeting bar */
+  .no-meeting-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .no-meeting-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .no-meeting-name {
+    min-width: 70px;
+    font-size: 12px;
+    color: var(--text);
+    text-align: right;
+    flex-shrink: 0;
+  }
+  .no-meeting-bar-bg {
+    flex: 1;
+    height: 24px;
+    background: #f1f5f9;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .no-meeting-bar {
+    height: 100%;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    padding-left: 8px;
+    font-size: 11px;
+    font-weight: 700;
+    color: white;
+    min-width: fit-content;
+  }
+  .no-meeting-val {
+    min-width: 24px;
+    font-size: 12px;
+    font-weight: 700;
+    color: var(--text);
+    text-align: right;
+  }
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 32px 0 16px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--blue);
+  }
+
+  @media (max-width: 1024px) {
+    .kpi-grid { grid-template-columns: repeat(2, 1fr); }
+    .chart-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 640px) {
+    .kpi-grid { grid-template-columns: 1fr; }
+    .dashboard { padding: 12px; }
+  }
+</style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="header">
+    <div>
+      <h1><span>交付时效</span>数据看板</h1>
+      <div class="meta">数据周期：<strong>5月25日 — 5月31日</strong></div>
+    </div>
+    <div class="meta">更新时间：2026-06-01</div>
+  </div>
+
+  <!-- KPI Cards -->
+  <div class="kpi-grid" id="kpiGrid"></div>
+
+  <!-- Section: 提纲设置逾期 -->
+  <div class="section-title">提纲设置逾期分析</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">按售后主管 · 提纲设置逾期量</div>
+      <div class="card-subtitle">本周各主管超时客户数</div>
+      <canvas id="chartOutlinePerson"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">按部门 · 提纲设置逾期量</div>
+      <div class="card-subtitle">各部门超时客户数</div>
+      <canvas id="chartOutlineDept"></canvas>
+    </div>
+  </div>
+
+  <!-- Section: 提纲设置延期原因 -->
+  <div class="section-title">提纲设置延期原因</div>
+  <div class="chart-grid">
+    <div class="card full-width">
+      <div class="card-title">延期原因分布 Top 15</div>
+      <div class="card-subtitle">按延期原因统计的频次</div>
+      <div id="reasonBarsOutline"></div>
+    </div>
+  </div>
+
+  <!-- Section: 部门交付时效 Heatmap -->
+  <div class="section-title">部门交付时效</div>
+  <div class="chart-grid">
+    <div class="card full-width">
+      <div class="card-title">部门 × 文书类型 · 交付时效总览</div>
+      <div class="card-subtitle">平均交付天数 | 完成量 | 超期率（颜色越深代表超期率越高）</div>
+      <div style="overflow-x: auto;">
+        <table class="heatmap-table" id="deliveryHeatmap">
+          <thead></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 批注逾期 -->
+  <div class="section-title">批注逾期分析</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">按部门 · 批注逾期平均时长</div>
+      <div class="card-subtitle">逾期批注平均时长（小时），共 38 条逾期记录</div>
+      <canvas id="chartAnnotationDept"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">批注逾期明细</div>
+      <div class="card-subtitle">逾期时长较长的明细记录（时长最长 Top 10）</div>
+      <div style="overflow-x: auto; max-height: 320px; overflow-y: auto;">
+        <table class="data-table" id="annotationDetailTable">
+          <thead>
+            <tr>
+              <th>客户姓名</th>
+              <th>文书类型</th>
+              <th class="num">逾期时长(h)</th>
+              <th>主管</th>
+              <th>部门</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: AI率分布 -->
+  <div class="section-title">AI率分布分析</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">按文案主管 · AI率分布</div>
+      <div class="card-subtitle">共 1407 篇文案，按文案直属上级统计 AI 率档位分布</div>
+      <canvas id="chartAiRateSupervisor"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">按部门 · AI率分布</div>
+      <div class="card-subtitle">各部门 AI 率档位占比（0-20% / 20-50% / 50%+）</div>
+      <canvas id="chartAiRateDept"></canvas>
+    </div>
+  </div>
+
+  <!-- Section: 网申变更 -->
+  <div class="section-title">网申时间变更分析</div>
+  <div class="chart-grid">
+    <div class="card full-width">
+      <div class="card-title">修改预计网申时间 · 销售顾问排行</div>
+      <div class="card-subtitle">本周各销售顾问修改网申时间次数（按次数降序）</div>
+      <div id="dateChangeBars"></div>
+    </div>
+  </div>
+
+  <!-- Section: 逾期未提交网申 -->
+  <div class="section-title">逾期未提交网申</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">按组别 · 逾期未提交网申数量</div>
+      <div class="card-subtitle">共 48 条（部分记录 detail 较多）</div>
+      <canvas id="chartOverdueApp"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">逾期未提交网申明细</div>
+      <div class="card-subtitle">各客户逾期提交情况（截至 5.31）</div>
+      <div style="overflow-x: auto; max-height: 320px; overflow-y: auto;">
+        <table class="data-table" id="overdueAppTable">
+          <thead>
+            <tr>
+              <th>客户姓名</th>
+              <th>销售顾问</th>
+              <th>所属组</th>
+              <th>项目</th>
+              <th>截止日期</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Section: 异常数据关注 -->
+  <div class="section-title">异常数据关注</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">无腾会记录统计</div>
+      <div class="card-subtitle">无腾讯会议记录的客户数量，按部门分布（共 63 个）</div>
+      <div id="noMeetingBars"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">售后主管提纲逾期明细</div>
+      <div class="card-subtitle">本周各主管超时客户数据</div>
+      <div style="overflow-x: auto;">
+        <table class="data-table" id="outlineDetailTable">
+          <thead>
+            <tr>
+              <th>售后主管</th>
+              <th class="num">客户总数</th>
+              <th class="num">超时客户</th>
+              <th>状态</th>
+            </tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ============================================================
+// DATA
+// ============================================================
+const DATA = {
+  period: "5.25-5.31",
+  ai: {
+    total: 1407,
+    avg: 8.5,
+    dist: { low: 1290, mid: 114, high: 3 },
+    by_dept: {
+      "交付一部": { low: 294, mid: 55, high: 2, total: 351, avg: 11.6 },
+      "交付二部": { low: 368, mid: 29, high: 1, total: 398, avg: 7.3 },
+      "交付三部": { low: 208, mid: 17, high: 0, total: 225, avg: 9.6 },
+      "交付六部": { low: 211, mid: 10, high: 0, total: 221, avg: 5.6 },
+      "交付七部": { low: 209, mid: 3,  high: 0, total: 212, avg: 7.2 }
+    },
+    by_mgr: {
+      "徐萍":   { low: 204, mid: 17, high: 0, total: 221, avg: 9.8 },
+      "李倩倩": { low: 155, mid: 30, high: 0, total: 185, avg: 12.0 },
+      "彭明珠": { low: 211, mid: 10, high: 0, total: 221, avg: 5.6 },
+      "孙美冬": { low: 56,  mid: 8,  high: 1, total: 65,  avg: 12.5 },
+      "陈娜":   { low: 56,  mid: 5,  high: 1, total: 62,  avg: 8.4 },
+      "郭佳佳": { low: 206, mid: 9,  high: 0, total: 215, avg: 6.3 },
+      "蒯冰洁": { low: 194, mid: 2,  high: 0, total: 196, avg: 7.2 },
+      "高伟杰": { low: 15,  mid: 1,  high: 0, total: 16,  avg: 7.5 },
+      "袁嘉艺": { low: 71,  mid: 0,  high: 0, total: 71,  avg: 4.9 },
+      "赵倩倩": { low: 91,  mid: 20, high: 1, total: 112, avg: 10.7 },
+      "蔡丽佳": { low: 27,  mid: 12, high: 0, total: 39,  avg: 13.3 },
+      "葛丹丹": { low: 4,   mid: 0,  high: 0, total: 4,   avg: 2.0 }
+    }
+  },
+  dept_delivery: {
+    "交付一部": [
+      { type: "CV", avg_days: 5.8, exceed_rate: 0.73, num: 137 },
+      { type: "PS", avg_days: 11.3, exceed_rate: 17.95, num: 117 },
+      { type: "RL", avg_days: 4.6, exceed_rate: 0.0, num: 138 }
+    ],
+    "交付二部": [
+      { type: "CV", avg_days: 5.1, exceed_rate: 1.04, num: 192 },
+      { type: "PS", avg_days: 9.3, exceed_rate: 12.84, num: 148 },
+      { type: "RL", avg_days: 4.2, exceed_rate: 1.04, num: 192 }
+    ],
+    "交付三部": [
+      { type: "CV", avg_days: 4.7, exceed_rate: 0.0, num: 90 },
+      { type: "PS", avg_days: 7.6, exceed_rate: 1.23, num: 81 },
+      { type: "RL", avg_days: 4.1, exceed_rate: 0.0, num: 91 }
+    ],
+    "交付六部": [
+      { type: "CV", avg_days: 6.5, exceed_rate: 1.04, num: 96 },
+      { type: "PS", avg_days: 11.8, exceed_rate: 15.58, num: 77 },
+      { type: "RL", avg_days: 5.6, exceed_rate: 0.0, num: 79 }
+    ],
+    "交付七部": [
+      { type: "CV", avg_days: 6.4, exceed_rate: 0.0, num: 88 },
+      { type: "PS", avg_days: 11.8, exceed_rate: 26.88, num: 93 },
+      { type: "RL", avg_days: 5.4, exceed_rate: 0.0, num: 97 }
+    ],
+    "总体": [
+      { type: "CV", avg_days: 5.6, exceed_rate: 0.66, num: 609 },
+      { type: "PS", avg_days: 10.3, exceed_rate: 15.03, num: 519 },
+      { type: "RL", avg_days: 4.6, exceed_rate: 0.33, num: 603 }
+    ]
+  },
+  annotation: {
+    total: 38,
+    by_dept: {
+      "交付一部": { avg: 249.2, count: 9, max: 575.0 },
+      "交付二部": { avg: 359.3, count: 10, max: 1579.0 },
+      "交付三部": { avg: 250.8, count: 4, max: 410.0 },
+      "交付六部": { avg: 388.9, count: 8, max: 966.0 },
+      "交付七部": { avg: 458.3, count: 7, max: 647.0 }
+    },
+    detail: [
+      { id: "1089837", name: "郑雅如", type: "CV",  hours: 1579.0, mgr: "赵倩倩", dept: "交付二部" },
+      { id: "1107815", name: "魏子翔", type: "PS1", hours: 966.0,  mgr: "夏艺",   dept: "交付六部" },
+      { id: "1107815", name: "魏子翔", type: "PS2", hours: 847.0,  mgr: "夏艺",   dept: "交付六部" },
+      { id: "981979",  name: "卢星宇", type: "CV",  hours: 647.0,  mgr: "王婉秋", dept: "交付七部" },
+      { id: "1098425", name: "姚景添", type: "RL1", hours: 635.0,  mgr: "赵倩倩", dept: "交付二部" },
+      { id: "981979",  name: "卢星宇", type: "PS1", hours: 455.0,  mgr: "王婉秋", dept: "交付七部" },
+      { id: "981979",  name: "卢星宇", type: "PS2", hours: 455.0,  mgr: "王婉秋", dept: "交付七部" },
+      { id: "1027460", name: "刘昊宜", type: "PS1", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" },
+      { id: "1027460", name: "刘昊宜", type: "PS2", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" },
+      { id: "1027460", name: "刘昊宜", type: "PS3", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" }
+    ]
+  },
+  delay_reasons: [
+    ["初次", 13], ["1", 9], ["文书老师语音后写提纲", 8], ["首次制定", 8],
+    ["学生近两周都在考试，没时间填写", 6], ["学生5月底考雅思", 6],
+    ["学生坚持要等雅思成绩出来之后才愿意写提纲文书", 6], ["5.26才文书语音", 6],
+    ["初次设置", 5], ["客户近期正准备回加拿大，要求推迟开始准备", 5],
+    ["客户考试，没时间准备", 5], ["文书语音", 5],
+    ["客户拖延", 5], ["首次定校", 5], ["客户要准备期末考试，提升GPA", 5]
+  ],
+  no_meeting: {
+    total: 63,
+    by_dept: {
+      "交付一部": 8, "交付二部": 2, "交付三部": 5,
+      "交付六部": 7, "交付七部": 1
+    }
+  },
+  outline_overdue_persons: [
+    { person: "谢子月", total: 11, overdue: 0 },
+    { person: "姚家鑫", total: 11, overdue: 1 },
+    { person: "袁嘉艺", total: 4,  overdue: 0 },
+    { person: "赵倩倩", total: 9,  overdue: 0 },
+    { person: "朱钰茜", total: 0,  overdue: 0 },
+    { person: "梁家鑫", total: 9,  overdue: 0 },
+    { person: "胡磊",   total: 10, overdue: 0 },
+    { person: "王婉秋", total: 13, overdue: 2 },
+    { person: "夏艺",   total: 17, overdue: 1 },
+    { person: "谷伟",   total: 2,  overdue: 0 }
+  ],
+  outline_overdue_depts: [
+    { dept: "交付一部", overdue: 0 },
+    { dept: "交付二部", overdue: 1 },
+    { dept: "交付三部", overdue: 0 },
+    { dept: "交付六部", overdue: 1 },
+    { dept: "交付七部", overdue: 2 }
+  ],
+  overdue_app: {
+    total: 48,
+    by_group: { "祁棚轩": 1, "李乔乔": 2, "王婉秋": 6, "白婧": 3, "李莹莹": 3 },
+    detail: [
+      { name: "高炜",   sales: "黄英乔", group: "祁棚轩", project: "LU MSc Data Science",             deadline: "2026-05-30" },
+      { name: "郭怡然", sales: "王楠楠", group: "李乔乔", project: "NTU Master of Education (Music)",  deadline: "2026-05-31" },
+      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Birmingham MSc Statistics",        deadline: "2026-05-30" },
+      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Leeds MSc Statistics",             deadline: "2026-05-30" },
+      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Nottingham MSc Statistics",        deadline: "2026-05-30" },
+      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Southampton MSc Applied Statistics",deadline: "2026-05-30" },
+      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Southampton MSc Statistics",       deadline: "2026-05-30" },
+      { name: "霍楠",   sales: "王姣姣", group: "白婧",   project: "SMU MSc Entrepreneurship and Innovation",deadline: "2026-05-31" },
+      { name: "霍楠",   sales: "王姣姣", group: "白婧",   project: "SMU MSc Management",               deadline: "2026-05-31" },
+      { name: "刘征赫", sales: "王姣姣", group: "白婧",   project: "NUS MSc Quantitative Finance",     deadline: "2026-05-31" },
+      { name: "孙艺齐", sales: "贺诗文", group: "李乔乔", project: "NUS MSc Mathematics",              deadline: "2026-05-31" },
+      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Art)",    deadline: "2026-05-30" },
+      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Curriculum and Teaching)", deadline: "2026-05-30" },
+      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Developmental Psychology)", deadline: "2026-05-30" },
+      { name: "薛书涵", sales: "别德宇", group: "王婉秋", project: "NUS MSc Human Capital Management and Analytics", deadline: "2026-05-30" }
+    ]
+  },
+  date_changes: [
+    { sales: "焦镜棉", count: 9, group: "王婉秋" },
+    { sales: "李玮熠", count: 9, group: "祁棚轩" },
+    { sales: "吕海燕", count: 7, group: "王婉秋" },
+    { sales: "谷伟",   count: 5, group: "张维宇" },
+    { sales: "李莹莹", count: 5, group: "巴蓉蓉" },
+    { sales: "祁棚轩", count: 5, group: "祁棚轩" },
+    { sales: "赵佳琚", count: 5, group: "李乔乔" },
+    { sales: "袁嘉艺", count: 4, group: "白婧" },
+    { sales: "邹雨情", count: 4, group: "李乔乔" },
+    { sales: "白婧",   count: 3, group: "白婧" },
+    { sales: "胡磊",   count: 3, group: "祁棚轩" },
+    { sales: "苏雅雯", count: 3, group: "王婉秋" },
+    { sales: "王文静", count: 3, group: "张维宇" },
+    { sales: "吴江燕", count: 3, group: "巴蓉蓉" },
+    { sales: "梁佳欣", count: 2, group: "李乔乔" },
+    { sales: "王安琪", count: 2, group: "白婧" },
+    { sales: "王浩",   count: 2, group: "李乔乔" },
+    { sales: "徐雅轩", count: 2, group: "王婉秋" },
+    { sales: "张姝颖", count: 2, group: "李乔乔" },
+    { sales: "曹芃",   count: 1, group: "王婉秋" }
+  ]
+};
+
+// ============================================================
+// Chart defaults
+// ============================================================
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#64748b';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 16;
+
+// ============================================================
+// KPI Cards
+// ============================================================
+const totalDelivery = Object.values(DATA.dept_delivery)
+  .filter(k => k !== DATA.dept_delivery["总体"])
+  .flatMap(v => v).reduce((acc, v) => acc + v.num, 0);
+
+// PS超期率取总体加权
+const totalPS = DATA.dept_delivery["总体"].find(d => d.type === "PS");
+const kpiConfig = [
+  { label: '本周AI检测总量', value: DATA.ai.total, suffix: '篇', color: 'blue', sub: '整体平均AI率 ' + DATA.ai.avg + '%' },
+  { label: '提纲设置逾期', value: DATA.outline_overdue_persons.reduce((s,p)=>s+p.overdue,0), suffix: '人', color: 'red', sub: '王婉秋(2)、夏艺(1)、姚家鑫(1)' },
+  { label: '批注逾期记录', value: DATA.annotation.total, suffix: '条', color: 'amber', sub: '交付七部平均最长 458h' },
+  { label: 'PS平均交付天数', value: totalPS ? totalPS.avg_days : 10.3, suffix: '天', color: 'green', sub: 'PS超期率 ' + (totalPS ? totalPS.exceed_rate : 15.03) + '%' },
+  { label: '无腾会记录', value: DATA.no_meeting.total, suffix: '个', color: 'purple', sub: '交付一部最多(8个)' },
+  { label: '逾期未提交网申', value: DATA.overdue_app.total, suffix: '条', color: 'cyan', sub: '王婉秋组最多(6条)' }
+];
+
+const kpiGrid = document.getElementById('kpiGrid');
+kpiConfig.forEach(kpi => {
+  const card = document.createElement('div');
+  card.className = 'kpi-card ' + kpi.color;
+  card.innerHTML = '<div class="kpi-label">' + kpi.label + '</div>'
+    + '<div class="kpi-value">' + kpi.value + '<span style="font-size:16px;font-weight:500;margin-left:4px">' + kpi.suffix + '</span></div>'
+    + '<div class="kpi-sub">' + kpi.sub + '</div>';
+  kpiGrid.appendChild(card);
+});
+
+// ============================================================
+// 1. 提纲逾期 - 按人
+// ============================================================
+(function() {
+  const persons = DATA.outline_overdue_persons.map(p => p.person);
+  const colors = DATA.outline_overdue_persons.map(p => p.overdue > 0 ? '#ef4444' : '#cbd5e1');
+  new Chart(document.getElementById('chartOutlinePerson'), {
+    type: 'bar',
+    data: {
+      labels: persons,
+      datasets: [
+        { label: '超时客户', data: DATA.outline_overdue_persons.map(p => p.overdue), backgroundColor: colors, borderRadius: 3 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+    }
+  });
+})();
+
+// ============================================================
+// 2. 提纲逾期 - 按部门
+// ============================================================
+(function() {
+  const depts = DATA.outline_overdue_depts.map(d => d.dept);
+  const colors = DATA.outline_overdue_depts.map(d => d.overdue > 0 ? '#ef4444' : '#cbd5e1');
+  new Chart(document.getElementById('chartOutlineDept'), {
+    type: 'bar',
+    data: {
+      labels: depts,
+      datasets: [
+        { label: '超时客户', data: DATA.outline_overdue_depts.map(d => d.overdue), backgroundColor: colors, borderRadius: 3 }
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { grid: { display: false } } }
+    }
+  });
+})();
+
+// ============================================================
+// 3. 延期原因（横向 bar chart，plain style）
+// ============================================================
+(function() {
+  const reasons = DATA.delay_reasons;
+  const maxCount = reasons[0][1];
+  const colors = ['#ef4444','#ef4444','#ef4444','#f59e0b','#f59e0b','#f59e0b','#f59e0b','#f59e0b','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6'];
+  const wrap = document.getElementById('reasonBarsOutline');
+  reasons.forEach((r, i) => {
+    const pct = (r[1] / maxCount * 100).toFixed(1);
+    wrap.innerHTML += `
+      <div class="reason-bar-wrap">
+        <div class="reason-label" title="${r[0]}">${r[0]}</div>
+        <div class="reason-bar-bg">
+          <div class="reason-bar" style="width:${pct}%;background:${colors[i]};">${r[1]}</div>
+        </div>
+        <div class="reason-count">${r[1]}</div>
+      </div>`;
+  });
+})();
+
+// ============================================================
+// 4. 部门交付时效 Heatmap
+// ============================================================
+(function() {
+  const depts = ["交付一部","交付二部","交付三部","交付六部","交付七部","总体"];
+  const types = ["CV","PS","RL"];
+  const thead = document.querySelector('#deliveryHeatmap thead');
+  const tbody = document.querySelector('#deliveryHeatmap tbody');
+
+  let headHTML = '<tr><th>部门</th>';
+  types.forEach(t => {
+    headHTML += `<th colspan="3" style="border-left:1px solid #e2e8f0">${t}</th>`;
+  });
+  headHTML += '</tr><tr><th></th>';
+  types.forEach(() => {
+    headHTML += '<th style="border-left:1px solid #e2e8f0">均天数</th><th>量</th><th>超期率</th>';
+  });
+  headHTML += '</tr>';
+  thead.innerHTML = headHTML;
+
+  depts.forEach(dept => {
+    const rows = DATA.dept_delivery[dept];
+    let rowHTML = `<tr class="${dept === '总体' ? 'total-row' : ''}"><td>${dept}</td>`;
+    types.forEach(t => {
+      const r = rows ? rows.find(x => x.type === t) : null;
+      if (r) {
+        const heatClass = r.exceed_rate === 0 ? 'heat-0' : r.exceed_rate < 10 ? 'heat-1' : 'heat-2';
+        rowHTML += `<td style="border-left:1px solid #f1f5f9">${r.avg_days}天</td><td>${r.num}</td><td class="${heatClass}">${r.exceed_rate}%</td>`;
+      } else {
+        rowHTML += '<td style="border-left:1px solid #f1f5f9">—</td><td>—</td><td>—</td>';
+      }
+    });
+    rowHTML += '</tr>';
+    tbody.innerHTML += rowHTML;
+  });
+})();
+
+// ============================================================
+// 5. 批注逾期 - 按部门平均时长
+// ============================================================
+(function() {
+  const depts = Object.keys(DATA.annotation.by_dept);
+  const avgs = depts.map(d => DATA.annotation.by_dept[d].avg);
+  const colors = avgs.map(v => v > 400 ? '#ef4444' : v > 300 ? '#f59e0b' : '#10b981');
+  new Chart(document.getElementById('chartAnnotationDept'), {
+    type: 'bar',
+    data: {
+      labels: depts,
+      datasets: [
+        { label: '平均逾期时长(h)', data: avgs, backgroundColor: colors, borderRadius: 4 }
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, grid: { color: '#f1f5f9' } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // 批注逾期明细表
+  const tbody = document.querySelector('#annotationDetailTable tbody');
+  DATA.annotation.detail.forEach(row => {
+    const heatClass = row.hours > 500 ? 'highlight-red' : row.hours > 200 ? '' : 'highlight-green';
+    tbody.innerHTML += `<tr>
+      <td>${row.name}</td>
+      <td>${row.type}</td>
+      <td class="num ${heatClass}">${row.hours}</td>
+      <td>${row.mgr}</td>
+      <td>${row.dept}</td>
+    </tr>`;
+  });
+})();
+
+// ============================================================
+// 6. AI率 - 按文案主管
+// ============================================================
+(function() {
+  const mgrs = Object.keys(DATA.ai.by_mgr);
+  const lows = mgrs.map(m => DATA.ai.by_mgr[m].low);
+  const mids = mgrs.map(m => DATA.ai.by_mgr[m].mid);
+  const highs = mgrs.map(m => DATA.ai.by_mgr[m].high);
+  new Chart(document.getElementById('chartAiRateSupervisor'), {
+    type: 'bar',
+    data: {
+      labels: mgrs,
+      datasets: [
+        { label: '低(<20%)',  data: lows,  backgroundColor: '#10b981', borderRadius: 2 },
+        { label: '中(20-50%)',data: mids,  backgroundColor: '#f59e0b', borderRadius: 2 },
+        { label: '高(≥50%)', data: highs, backgroundColor: '#ef4444', borderRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { title: { display: false } },
+      scales: {
+        x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 45 } },
+        y: { stacked: true, beginAtZero: true }
+      }
+    }
+  });
+})();
+
+// ============================================================
+// 7. AI率 - 按部门
+// ============================================================
+(function() {
+  const depts = Object.keys(DATA.ai.by_dept);
+  const lows  = depts.map(d => DATA.ai.by_dept[d].low);
+  const mids  = depts.map(d => DATA.ai.by_dept[d].mid);
+  const highs = depts.map(d => DATA.ai.by_dept[d].high);
+  new Chart(document.getElementById('chartAiRateDept'), {
+    type: 'bar',
+    data: {
+      labels: depts,
+      datasets: [
+        { label: '低(<20%)',  data: lows,  backgroundColor: '#10b981', borderRadius: 2 },
+        { label: '中(20-50%)',data: mids,  backgroundColor: '#f59e0b', borderRadius: 2 },
+        { label: '高(≥50%)', data: highs, backgroundColor: '#ef4444', borderRadius: 2 }
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: true,
+      plugins: { title: { display: false } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true }
+      }
+    }
+  });
+})();
+
+// ============================================================
+// 8. 网申时间变更 - 横向 bar
+// ============================================================
+(function() {
+  const changes = DATA.date_changes;
+  const maxCount = changes[0].count;
+  const groupColors = {};
+  const palette = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444','#06b6d4'];
+  let colorIdx = 0;
+  const wrap = document.getElementById('dateChangeBars');
+  changes.forEach(r => {
+    if (!groupColors[r.group]) groupColors[r.group] = palette[colorIdx++ % palette.length];
+    const pct = (r.count / maxCount * 100).toFixed(1);
+    wrap.innerHTML += `
+      <div class="reason-bar-wrap">
+        <div class="reason-label">${r.sales}<span style="color:#94a3b8;font-size:11px;margin-left:4px">(${r.group})</span></div>
+        <div class="reason-bar-bg">
+          <div class="reason-bar" style="width:${pct}%;background:${groupColors[r.group]};">${r.count}次</div>
+        </div>
+        <div class="reason-count">${r.count}</div>
+      </div>`;
+  });
+})();
+
+// ============================================================
+// 9. 逾期未提交网申 - 按组别柱图
+// ============================================================
+(function() {
+  const groups = Object.keys(DATA.overdue_app.by_group);
+  const counts = groups.map(g => DATA.overdue_app.by_group[g]);
+  const colors = counts.map(c => c >= 5 ? '#ef4444' : c >= 3 ? '#f59e0b' : '#3b82f6');
+  new Chart(document.getElementById('chartOverdueApp'), {
+    type: 'bar',
+    data: {
+      labels: groups,
+      datasets: [
+        { label: '逾期条数', data: counts, backgroundColor: colors, borderRadius: 4 }
+      ]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
+      plugins: { legend: { display: false } },
+      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { grid: { display: false } } }
+    }
+  });
+
+  // 逾期未提交网申明细
+  const tbody = document.querySelector('#overdueAppTable tbody');
+  DATA.overdue_app.detail.forEach(row => {
+    tbody.innerHTML += `<tr>
+      <td>${row.name}</td>
+      <td>${row.sales}</td>
+      <td>${row.group}</td>
+      <td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${row.project}">${row.project}</td>
+      <td><span class="tag tag-red">${row.deadline}</span></td>
+    </tr>`;
+  });
+})();
+
+// ============================================================
+// 10. 无腾会记录 - 按部门横向 bar
+// ============================================================
+(function() {
+  const depts = Object.keys(DATA.no_meeting.by_dept);
+  const counts = depts.map(d => DATA.no_meeting.by_dept[d]);
+  const maxCount = Math.max(...counts);
+  const wrap = document.getElementById('noMeetingBars');
+  wrap.className = 'no-meeting-list';
+  const barColors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444'];
+  depts.forEach((dept, i) => {
+    const pct = (counts[i] / maxCount * 100).toFixed(1);
+    wrap.innerHTML += `
+      <div class="no-meeting-item">
+        <div class="no-meeting-name">${dept}</div>
+        <div class="no-meeting-bar-bg">
+          <div class="no-meeting-bar" style="width:${pct}%;background:${barColors[i]};">${counts[i]}</div>
+        </div>
+        <div class="no-meeting-val">${counts[i]}</div>
+      </div>`;
+  });
+})();
+
+// ============================================================
+// 11. 提纲逾期明细表
+// ============================================================
+(function() {
+  const tbody = document.querySelector('#outlineDetailTable tbody');
+  DATA.outline_overdue_persons.forEach(p => {
+    const cls = p.overdue > 0 ? 'tag tag-red' : 'tag tag-green';
+    const label = p.overdue > 0 ? '有逾期' : '无逾期';
+    tbody.innerHTML += `<tr>
+      <td>${p.person}</td>
+      <td class="num">${p.total || 0}</td>
+      <td class="num ${p.overdue > 0 ? 'highlight-red' : ''}">${p.overdue}</td>
+      <td><span class="${cls}">${label}</span></td>
+    </tr>`;
+  });
+})();
+</script>
+</body>
+</html>
