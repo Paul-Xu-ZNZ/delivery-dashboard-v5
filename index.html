@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>交付时效数据看板 | 5.25-5.31</title>
+<title>交付时效数据看板 | 2026年5月</title>
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <style>
   :root {
@@ -69,7 +69,7 @@
 
   .kpi-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: 16px;
     margin-bottom: 24px;
   }
@@ -201,13 +201,10 @@
     margin-bottom: 10px;
   }
   .reason-label {
-    min-width: 200px;
-    font-size: 12px;
+    min-width: 120px;
+    font-size: 13px;
     text-align: right;
     color: var(--text);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
   }
   .reason-bar-bg {
     flex: 1;
@@ -234,10 +231,9 @@
     font-size: 13px;
     font-weight: 700;
     color: var(--text);
-    text-align: right;
   }
 
-  /* Heatmap table */
+  /* Heatmap table for delivery metrics */
   .heatmap-table {
     width: 100%;
     border-collapse: collapse;
@@ -278,7 +274,7 @@
   .heat-1 { background: #fefce8; color: #a16207; }
   .heat-2 { background: #fef2f2; color: #dc2626; }
 
-  /* No-meeting bar */
+  /* No-meeting bar chart style */
   .no-meeting-list {
     display: flex;
     flex-direction: column;
@@ -322,13 +318,24 @@
     text-align: right;
   }
 
-  .section-title {
-    font-size: 18px;
-    font-weight: 700;
-    color: var(--text);
-    margin: 32px 0 16px 0;
-    padding-left: 12px;
-    border-left: 3px solid var(--blue);
+  /* Monthly trend: grouped bar */
+  .trend-legend {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+  }
+  .trend-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+  .trend-legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 2px;
   }
 
   @media (max-width: 1024px) {
@@ -339,140 +346,116 @@
     .kpi-grid { grid-template-columns: 1fr; }
     .dashboard { padding: 12px; }
   }
-  /* ====== 密码锁界面 ====== */
-  #lockScreen {
-    position: fixed; inset: 0; z-index: 9999;
-    background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%);
-    display: flex; align-items: center; justify-content: center;
+
+  .section-title {
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--text);
+    margin: 32px 0 16px 0;
+    padding-left: 12px;
+    border-left: 3px solid var(--blue);
   }
-  .lock-box {
-    background: #ffffff; border-radius: 16px;
-    padding: 40px 48px; width: 360px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.4);
+  /* Password Overlay */
+  .pw-overlay {
+    position: fixed; inset: 0;
+    background: linear-gradient(135deg, #1e293b 0%, #334155 100%);
+    display: flex; align-items: center; justify-content: center;
+    z-index: 9999;
+  }
+  .pw-card {
+    background: #fff; border-radius: 16px; padding: 40px 36px;
+    width: 380px; max-width: 90vw;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
     text-align: center;
   }
-  .lock-icon {
-    font-size: 48px; margin-bottom: 16px;
+  .pw-card h2 {
+    margin: 0 0 8px; font-size: 20px; color: #1e293b;
   }
-  .lock-title {
-    font-size: 20px; font-weight: 700; color: #1e293b;
-    margin-bottom: 4px;
+  .pw-card .pw-sub {
+    font-size: 13px; color: #94a3b8; margin-bottom: 24px;
   }
-  .lock-subtitle {
-    font-size: 13px; color: #94a3b8; margin-bottom: 28px;
+  .pw-card input {
+    width: 100%; padding: 12px 16px; border: 2px solid #e2e8f0;
+    border-radius: 10px; font-size: 15px; outline: none;
+    box-sizing: border-box; transition: border-color .2s;
   }
-  .lock-input {
-    width: 100%; padding: 12px 16px;
-    border: 1.5px solid #e2e8f0; border-radius: 10px;
-    font-size: 16px; letter-spacing: 2px;
-    outline: none; transition: border-color 0.2s;
-    margin-bottom: 16px;
+  .pw-card input:focus { border-color: #3b82f6; }
+  .pw-card .pw-btn {
+    width: 100%; margin-top: 16px; padding: 12px; border: none;
+    border-radius: 10px; background: #3b82f6; color: #fff;
+    font-size: 15px; font-weight: 600; cursor: pointer;
+    transition: background .2s;
   }
-  .lock-input:focus { border-color: #3b82f6; }
-  .lock-btn {
-    width: 100%; padding: 12px;
-    background: #3b82f6; color: #fff;
-    border: none; border-radius: 10px;
-    font-size: 16px; font-weight: 600;
-    cursor: pointer; transition: background 0.2s;
-  }
-  .lock-btn:hover { background: #2563eb; }
-  .lock-error {
-    color: #ef4444; font-size: 13px;
-    margin-top: 12px; min-height: 20px;
-  }
+  .pw-card .pw-btn:hover { background: #2563eb; }
+  .pw-error { color: #ef4444; font-size: 13px; margin-top: 12px; display: none; }
 </style>
 </head>
 <body>
-
-<!-- ====== 密码锁界面 ====== -->
-<div id="lockScreen">
-  <div class="lock-box">
-    <div class="lock-icon">🔒</div>
-    <div class="lock-title">交付时效数据看板</div>
-    <div class="lock-subtitle">请输入访问密码继续</div>
-    <input class="lock-input" id="lockInput" type="password" placeholder="请输入密码" maxlength="32" autocomplete="off" />
-    <button class="lock-btn" id="lockBtn">进入看板</button>
-    <div class="lock-error" id="lockError"></div>
+<div class="pw-overlay" id="pwOverlay">
+  <div class="pw-card">
+    <h2>🔐 访问验证</h2>
+    <div class="pw-sub">请输入访问密码</div>
+    <input type="password" id="pwInput" placeholder="请输入密码" onkeydown="if(event.key==='Enter')verifyPassword()">
+    <button class="pw-btn" onclick="verifyPassword()">验证</button>
+    <div class="pw-error" id="pwError">密码错误，请重试</div>
   </div>
 </div>
-
-<script>
-(function() {
-  const HASH = '84a76a0ce5be914eb7911d62d51d6af1724239833c53bff10efbaa7dfd376fed';
-  const SESSION_KEY = 'ddv5_auth';
-
-  async function sha256(str) {
-    const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(str));
-    return Array.from(new Uint8Array(buf)).map(b => b.toString(16).padStart(2,'0')).join('');
-  }
-
-  function unlock() {
-    document.getElementById('lockScreen').style.display = 'none';
-    sessionStorage.setItem(SESSION_KEY, '1');
-  }
-
-  // 已验证过（本次 session）直接放行
-  if (sessionStorage.getItem(SESSION_KEY) === '1') { unlock(); return; }
-
-  document.getElementById('lockBtn').addEventListener('click', async () => {
-    const val = document.getElementById('lockInput').value;
-    const h = await sha256(val);
-    if (h === HASH) {
-      unlock();
-    } else {
-      const errEl = document.getElementById('lockError');
-      errEl.textContent = '密码错误，请重试';
-      document.getElementById('lockInput').value = '';
-      document.getElementById('lockInput').focus();
-      setTimeout(() => errEl.textContent = '', 3000);
-    }
-  });
-
-  document.getElementById('lockInput').addEventListener('keydown', e => {
-    if (e.key === 'Enter') document.getElementById('lockBtn').click();
-  });
-})();
-</script>
-<!-- ====== 密码锁结束 ====== -->
+<div id="mainContent" style="display:none">
 <div class="dashboard">
   <div class="header">
     <div>
       <h1><span>交付时效</span>数据看板</h1>
-      <div class="meta">数据周期：<strong>5月25日 — 5月31日</strong></div>
+      <div class="meta">数据周期：<strong>6月1日 — 6月7日</strong></div>
     </div>
-    <div class="meta">更新时间：2026-06-01</div>
+    <div class="meta">
+      更新时间：2026-05-25
+    </div>
   </div>
 
   <!-- KPI Cards -->
   <div class="kpi-grid" id="kpiGrid"></div>
 
-  <!-- Section: 提纲设置逾期 -->
+  <!-- Section: 提纲设置逾期 (Sheet1) -->
   <div class="section-title">提纲设置逾期分析</div>
   <div class="chart-grid">
     <div class="card">
       <div class="card-title">按售后主管 · 提纲设置逾期量</div>
-      <div class="card-subtitle">本周各主管超时客户数</div>
+      <div class="card-subtitle">数据来源：Sheet1 · 本周各主管超时客户数</div>
       <canvas id="chartOutlinePerson"></canvas>
     </div>
     <div class="card">
       <div class="card-title">按部门 · 提纲设置逾期量</div>
-      <div class="card-subtitle">各部门超时客户数</div>
+      <div class="card-subtitle">数据来源：Sheet1 · 各部门超时客户数及超时率</div>
       <canvas id="chartOutlineDept"></canvas>
     </div>
   </div>
 
-  <!-- Section: 提纲设置延期原因 -->
+  <!-- Section: 提纲设置延期原因 (Sheet3, standalone) -->
   <div class="section-title">提纲设置延期原因</div>
   <div class="chart-grid">
     <div class="card full-width">
-      <div class="card-title">延期原因分布 Top 15</div>
-      <div class="card-subtitle">按延期原因统计的频次</div>
-      <div id="reasonBarsOutline"></div>
+      <div class="card-title">延期原因分布</div>
+      <div class="card-subtitle">数据来源：Sheet3 · 按延期原因统计的频次（Top 10）</div>
+      <canvas id="chartOutlineReasons"></canvas>
     </div>
   </div>
 
-  <!-- Section: 部门交付时效 Heatmap -->
+  <!-- Section: 首次沟通 -->
+  <div class="section-title">首次沟通时效分析</div>
+  <div class="chart-grid">
+    <div class="card">
+      <div class="card-title">按售后主管 · 首次沟通逾期</div>
+      <div class="card-subtitle">超时 / 准时 / 无有效数据</div>
+      <canvas id="chartCommPerson"></canvas>
+    </div>
+    <div class="card">
+      <div class="card-title">按部门 · 首次沟通逾期</div>
+      <div class="card-subtitle">各部门沟通时效分布</div>
+      <canvas id="chartCommDept"></canvas>
+    </div>
+  </div>
+
+  <!-- Section: 平均交稿时间 - REDESIGNED as heatmap table -->
   <div class="section-title">部门交付时效</div>
   <div class="chart-grid">
     <div class="card full-width">
@@ -487,32 +470,52 @@
     </div>
   </div>
 
+  <!-- Section: 月度趋势 - REDESIGNED -->
+  <div class="section-title">月度趋势</div>
+  <div class="chart-grid">
+    <div class="card full-width">
+      <div class="card-title">月度交付时效对比</div>
+      <div class="card-subtitle">本月 vs 上月 · 各部门平均交付天数变化</div>
+      <canvas id="chartMonthlyTrend"></canvas>
+    </div>
+  </div>
+
+  <!-- Section: 网申变更 -->
+  <div class="section-title">网申时间变更分析</div>
+  <div class="chart-grid">
+    <div class="card full-width">
+      <div class="card-title">修改预计网申时间 · 原因分布</div>
+      <div class="card-subtitle">本周共 112 次网申时间变更，按归类原因统计</div>
+      <div id="reasonBars"></div>
+    </div>
+  </div>
+
   <!-- Section: AI率分布 -->
   <div class="section-title">AI率分布分析</div>
   <div class="chart-grid">
     <div class="card">
       <div class="card-title">按文案主管 · AI率分布</div>
-      <div class="card-subtitle">共 1407 篇文案，按文案直属上级统计 AI 率档位分布</div>
+      <div class="card-subtitle">共 1169 篇文案，按文案直属上级统计 AI 率档位分布</div>
       <canvas id="chartAiRateSupervisor"></canvas>
     </div>
     <div class="card">
       <div class="card-title">按部门 · AI率分布</div>
-      <div class="card-subtitle">各部门 AI 率档位占比（0-20% / 20-50% / 50%+）</div>
+      <div class="card-subtitle">各部门 AI 率档位占比（0-20 / 20-50 / 50+）</div>
       <canvas id="chartAiRateDept"></canvas>
     </div>
   </div>
 
-  <!-- Section: 异常数据关注 -->
+  <!-- Section: 无腾会记录 - REDESIGNED -->
   <div class="section-title">异常数据关注</div>
   <div class="chart-grid">
     <div class="card">
       <div class="card-title">无腾会记录统计</div>
-      <div class="card-subtitle">无腾讯会议记录的客户数量，按部门分布（共 63 个）</div>
+      <div class="card-subtitle">无腾讯会议记录的客户数量，按售后主管分布</div>
       <div id="noMeetingBars"></div>
     </div>
     <div class="card">
       <div class="card-title">售后主管提纲逾期明细</div>
-      <div class="card-subtitle">本周各主管超时客户数据</div>
+      <div class="card-subtitle">数据来源：Sheet1 · 本周各主管超时客户数</div>
       <div style="overflow-x: auto;">
         <table class="data-table" id="outlineDetailTable">
           <thead>
@@ -520,6 +523,7 @@
               <th>售后主管</th>
               <th class="num">客户总数</th>
               <th class="num">超时客户</th>
+              <th class="num">超时率</th>
               <th>状态</th>
             </tr>
           </thead>
@@ -531,194 +535,41 @@
 </div>
 
 <script>
-// ============================================================
-// DATA
-// ============================================================
-const DATA = {
-  period: "5.25-5.31",
-  ai: {
-    total: 1407,
-    avg: 8.5,
-    dist: { low: 1290, mid: 114, high: 3 },
-    by_dept: {
-      "交付一部": { low: 294, mid: 55, high: 2, total: 351, avg: 11.6 },
-      "交付二部": { low: 368, mid: 29, high: 1, total: 398, avg: 7.3 },
-      "交付三部": { low: 208, mid: 17, high: 0, total: 225, avg: 9.6 },
-      "交付六部": { low: 211, mid: 10, high: 0, total: 221, avg: 5.6 },
-      "交付七部": { low: 209, mid: 3,  high: 0, total: 212, avg: 7.2 }
-    },
-    by_mgr: {
-      "徐萍":   { low: 204, mid: 17, high: 0, total: 221, avg: 9.8 },
-      "李倩倩": { low: 155, mid: 30, high: 0, total: 185, avg: 12.0 },
-      "彭明珠": { low: 211, mid: 10, high: 0, total: 221, avg: 5.6 },
-      "孙美冬": { low: 56,  mid: 8,  high: 1, total: 65,  avg: 12.5 },
-      "陈娜":   { low: 56,  mid: 5,  high: 1, total: 62,  avg: 8.4 },
-      "郭佳佳": { low: 206, mid: 9,  high: 0, total: 215, avg: 6.3 },
-      "蒯冰洁": { low: 194, mid: 2,  high: 0, total: 196, avg: 7.2 },
-      "高伟杰": { low: 15,  mid: 1,  high: 0, total: 16,  avg: 7.5 },
-      "袁嘉艺": { low: 71,  mid: 0,  high: 0, total: 71,  avg: 4.9 },
-      "赵倩倩": { low: 91,  mid: 20, high: 1, total: 112, avg: 10.7 },
-      "蔡丽佳": { low: 27,  mid: 12, high: 0, total: 39,  avg: 13.3 },
-      "葛丹丹": { low: 4,   mid: 0,  high: 0, total: 4,   avg: 2.0 }
-    }
-  },
-  dept_delivery: {
-    "交付一部": [
-      { type: "CV", avg_days: 5.8, exceed_rate: 0.73, num: 137 },
-      { type: "PS", avg_days: 11.3, exceed_rate: 17.95, num: 117 },
-      { type: "RL", avg_days: 4.6, exceed_rate: 0.0, num: 138 }
-    ],
-    "交付二部": [
-      { type: "CV", avg_days: 5.1, exceed_rate: 1.04, num: 192 },
-      { type: "PS", avg_days: 9.3, exceed_rate: 12.84, num: 148 },
-      { type: "RL", avg_days: 4.2, exceed_rate: 1.04, num: 192 }
-    ],
-    "交付三部": [
-      { type: "CV", avg_days: 4.7, exceed_rate: 0.0, num: 90 },
-      { type: "PS", avg_days: 7.6, exceed_rate: 1.23, num: 81 },
-      { type: "RL", avg_days: 4.1, exceed_rate: 0.0, num: 91 }
-    ],
-    "交付六部": [
-      { type: "CV", avg_days: 6.5, exceed_rate: 1.04, num: 96 },
-      { type: "PS", avg_days: 11.8, exceed_rate: 15.58, num: 77 },
-      { type: "RL", avg_days: 5.6, exceed_rate: 0.0, num: 79 }
-    ],
-    "交付七部": [
-      { type: "CV", avg_days: 6.4, exceed_rate: 0.0, num: 88 },
-      { type: "PS", avg_days: 11.8, exceed_rate: 26.88, num: 93 },
-      { type: "RL", avg_days: 5.4, exceed_rate: 0.0, num: 97 }
-    ],
-    "总体": [
-      { type: "CV", avg_days: 5.6, exceed_rate: 0.66, num: 609 },
-      { type: "PS", avg_days: 10.3, exceed_rate: 15.03, num: 519 },
-      { type: "RL", avg_days: 4.6, exceed_rate: 0.33, num: 603 }
-    ]
-  },
-  annotation: {
-    total: 38,
-    by_dept: {
-      "交付一部": { avg: 249.2, count: 9, max: 575.0 },
-      "交付二部": { avg: 359.3, count: 10, max: 1579.0 },
-      "交付三部": { avg: 250.8, count: 4, max: 410.0 },
-      "交付六部": { avg: 388.9, count: 8, max: 966.0 },
-      "交付七部": { avg: 458.3, count: 7, max: 647.0 }
-    },
-    detail: [
-      { id: "1089837", name: "郑雅如", type: "CV",  hours: 1579.0, mgr: "赵倩倩", dept: "交付二部" },
-      { id: "1107815", name: "魏子翔", type: "PS1", hours: 966.0,  mgr: "夏艺",   dept: "交付六部" },
-      { id: "1107815", name: "魏子翔", type: "PS2", hours: 847.0,  mgr: "夏艺",   dept: "交付六部" },
-      { id: "981979",  name: "卢星宇", type: "CV",  hours: 647.0,  mgr: "王婉秋", dept: "交付七部" },
-      { id: "1098425", name: "姚景添", type: "RL1", hours: 635.0,  mgr: "赵倩倩", dept: "交付二部" },
-      { id: "981979",  name: "卢星宇", type: "PS1", hours: 455.0,  mgr: "王婉秋", dept: "交付七部" },
-      { id: "981979",  name: "卢星宇", type: "PS2", hours: 455.0,  mgr: "王婉秋", dept: "交付七部" },
-      { id: "1027460", name: "刘昊宜", type: "PS1", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" },
-      { id: "1027460", name: "刘昊宜", type: "PS2", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" },
-      { id: "1027460", name: "刘昊宜", type: "PS3", hours: 431.0,  mgr: "高伟杰", dept: "交付七部" }
-    ]
-  },
-  delay_reasons: [
-    ["初次", 13], ["1", 9], ["文书老师语音后写提纲", 8], ["首次制定", 8],
-    ["学生近两周都在考试，没时间填写", 6], ["学生5月底考雅思", 6],
-    ["学生坚持要等雅思成绩出来之后才愿意写提纲文书", 6], ["5.26才文书语音", 6],
-    ["初次设置", 5], ["客户近期正准备回加拿大，要求推迟开始准备", 5],
-    ["客户考试，没时间准备", 5], ["文书语音", 5],
-    ["客户拖延", 5], ["首次定校", 5], ["客户要准备期末考试，提升GPA", 5]
-  ],
-  no_meeting: {
-    total: 63,
-    by_dept: {
-      "交付一部": 8, "交付二部": 2, "交付三部": 5,
-      "交付六部": 7, "交付七部": 1
-    }
-  },
-  outline_overdue_persons: [
-    { person: "谢子月", total: 11, overdue: 0 },
-    { person: "姚家鑫", total: 11, overdue: 1 },
-    { person: "袁嘉艺", total: 4,  overdue: 0 },
-    { person: "赵倩倩", total: 9,  overdue: 0 },
-    { person: "朱钰茜", total: 0,  overdue: 0 },
-    { person: "梁家鑫", total: 9,  overdue: 0 },
-    { person: "胡磊",   total: 10, overdue: 0 },
-    { person: "王婉秋", total: 13, overdue: 2 },
-    { person: "夏艺",   total: 17, overdue: 1 },
-    { person: "谷伟",   total: 2,  overdue: 0 }
-  ],
-  outline_overdue_depts: [
-    { dept: "交付一部", overdue: 0 },
-    { dept: "交付二部", overdue: 1 },
-    { dept: "交付三部", overdue: 0 },
-    { dept: "交付六部", overdue: 1 },
-    { dept: "交付七部", overdue: 2 }
-  ],
-  overdue_app: {
-    total: 48,
-    by_group: { "祁棚轩": 1, "李乔乔": 2, "王婉秋": 6, "白婧": 3, "李莹莹": 3 },
-    detail: [
-      { name: "高炜",   sales: "黄英乔", group: "祁棚轩", project: "LU MSc Data Science",             deadline: "2026-05-30" },
-      { name: "郭怡然", sales: "王楠楠", group: "李乔乔", project: "NTU Master of Education (Music)",  deadline: "2026-05-31" },
-      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Birmingham MSc Statistics",        deadline: "2026-05-30" },
-      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Leeds MSc Statistics",             deadline: "2026-05-30" },
-      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Nottingham MSc Statistics",        deadline: "2026-05-30" },
-      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Southampton MSc Applied Statistics",deadline: "2026-05-30" },
-      { name: "黄雨晗", sales: "顾婷婷", group: "王婉秋", project: "Southampton MSc Statistics",       deadline: "2026-05-30" },
-      { name: "霍楠",   sales: "王姣姣", group: "白婧",   project: "SMU MSc Entrepreneurship and Innovation",deadline: "2026-05-31" },
-      { name: "霍楠",   sales: "王姣姣", group: "白婧",   project: "SMU MSc Management",               deadline: "2026-05-31" },
-      { name: "刘征赫", sales: "王姣姣", group: "白婧",   project: "NUS MSc Quantitative Finance",     deadline: "2026-05-31" },
-      { name: "孙艺齐", sales: "贺诗文", group: "李乔乔", project: "NUS MSc Mathematics",              deadline: "2026-05-31" },
-      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Art)",    deadline: "2026-05-30" },
-      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Curriculum and Teaching)", deadline: "2026-05-30" },
-      { name: "王佳楠", sales: "于卉",   group: "李莹莹", project: "NTU Master of Education (Developmental Psychology)", deadline: "2026-05-30" },
-      { name: "薛书涵", sales: "别德宇", group: "王婉秋", project: "NUS MSc Human Capital Management and Analytics", deadline: "2026-05-30" }
-    ]
-  },
-  date_changes: [
-    { sales: "焦镜棉", count: 9, group: "王婉秋" },
-    { sales: "李玮熠", count: 9, group: "祁棚轩" },
-    { sales: "吕海燕", count: 7, group: "王婉秋" },
-    { sales: "谷伟",   count: 5, group: "张维宇" },
-    { sales: "李莹莹", count: 5, group: "巴蓉蓉" },
-    { sales: "祁棚轩", count: 5, group: "祁棚轩" },
-    { sales: "赵佳琚", count: 5, group: "李乔乔" },
-    { sales: "袁嘉艺", count: 4, group: "白婧" },
-    { sales: "邹雨情", count: 4, group: "李乔乔" },
-    { sales: "白婧",   count: 3, group: "白婧" },
-    { sales: "胡磊",   count: 3, group: "祁棚轩" },
-    { sales: "苏雅雯", count: 3, group: "王婉秋" },
-    { sales: "王文静", count: 3, group: "张维宇" },
-    { sales: "吴江燕", count: 3, group: "巴蓉蓉" },
-    { sales: "梁佳欣", count: 2, group: "李乔乔" },
-    { sales: "王安琪", count: 2, group: "白婧" },
-    { sales: "王浩",   count: 2, group: "李乔乔" },
-    { sales: "徐雅轩", count: 2, group: "王婉秋" },
-    { sales: "张姝颖", count: 2, group: "李乔乔" },
-    { sales: "曹芃",   count: 1, group: "王婉秋" }
-  ]
-};
+const DATA = {"period": "6.1-6.7", "updated": "2026-06-08T11:00", "kpis": {"total_clients": 164, "outline_overdue": 12, "outline_overdue_rate": 7.3, "comm_overdue": 12, "avg_delivery_days": 7.4, "delivery_overdue_count": 102, "no_meeting_count": 37}, "person_outline": [{"person": "陈娜", "dept": "交付一部", "total_clients": 7, "total_overdue": 0}, {"person": "陈燕", "dept": "交付六部", "total_clients": 10, "total_overdue": 0}, {"person": "高伟杰", "dept": "交付七部", "total_clients": 15, "total_overdue": 1}, {"person": "葛丹丹", "dept": "交付三部", "total_clients": 1, "total_overdue": 0}, {"person": "刘晓楠", "dept": "交付一部", "total_clients": 20, "total_overdue": 4}, {"person": "陆倩倩", "dept": "交付二部", "total_clients": 5, "total_overdue": 1}, {"person": "谢子月", "dept": "交付三部", "total_clients": 9, "total_overdue": 0}, {"person": "姚家鑫", "dept": "交付二部", "total_clients": 16, "total_overdue": 0}, {"person": "袁嘉艺", "dept": "交付二部", "total_clients": 18, "total_overdue": 1}, {"person": "赵倩倩", "dept": "交付二部", "total_clients": 3, "total_overdue": 0}, {"person": "朱钰茜", "dept": "交付三部", "total_clients": 0, "total_overdue": 0}, {"person": "梁家鑫", "dept": "交付三部", "total_clients": 8, "total_overdue": 0}, {"person": "胡磊", "dept": "交付一部", "total_clients": 11, "total_overdue": 1}, {"person": "王婉秋", "dept": "交付七部", "total_clients": 21, "total_overdue": 2}, {"person": "夏艺", "dept": "交付六部", "total_clients": 14, "total_overdue": 1}, {"person": "谷伟", "dept": "交付二部", "total_clients": 2, "total_overdue": 0}, {"person": "蔡丽佳", "dept": "交付一部", "total_clients": 4, "total_overdue": 1}], "person_comm": [{"person": "6.1-6.7", "dept": "", "ontime": 6, "overdue": 0, "no_data": 1}, {"person": "6.1-6.7", "dept": "", "ontime": 8, "overdue": 1, "no_data": 1}, {"person": "6.1-6.7", "dept": "", "ontime": 14, "overdue": 0, "no_data": 1}, {"person": "6.1-6.7", "dept": "", "ontime": 1, "overdue": 0, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 10, "overdue": 3, "no_data": 7}, {"person": "6.1-6.7", "dept": "", "ontime": 4, "overdue": 1, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 8, "overdue": 1, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 15, "overdue": 1, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 16, "overdue": 1, "no_data": 1}, {"person": "6.1-6.7", "dept": "", "ontime": 3, "overdue": 0, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 0, "overdue": 0, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 5, "overdue": 1, "no_data": 2}, {"person": "6.1-6.7", "dept": "", "ontime": 7, "overdue": 1, "no_data": 3}, {"person": "6.1-6.7", "dept": "", "ontime": 19, "overdue": 2, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 8, "overdue": 0, "no_data": 6}, {"person": "6.1-6.7", "dept": "", "ontime": 2, "overdue": 0, "no_data": 0}, {"person": "6.1-6.7", "dept": "", "ontime": 4, "overdue": 0, "no_data": 0}], "dept_outline": [{"dept": "交付一部", "total_clients": 42, "overdue": 6, "overdue_rate": 14.3}, {"dept": "交付二部", "total_clients": 44, "overdue": 2, "overdue_rate": 4.5}, {"dept": "交付三部", "total_clients": 18, "overdue": 0, "overdue_rate": 0.0}, {"dept": "交付六部", "total_clients": 24, "overdue": 1, "overdue_rate": 4.2}, {"dept": "交付七部", "total_clients": 36, "overdue": 3, "overdue_rate": 8.3}], "dept_comm": [{"dept": "交付一部", "total": 0, "overdue": 0, "overdue_rate": 0, "no_data": 0, "ontime": 0}, {"dept": "交付二部", "total": 0, "overdue": 0, "overdue_rate": 0, "no_data": 0, "ontime": 0}, {"dept": "交付三部", "total": 0, "overdue": 0, "overdue_rate": 0, "no_data": 0, "ontime": 0}, {"dept": "交付六部", "total": 0, "overdue": 0, "overdue_rate": 0, "no_data": 0, "ontime": 0}, {"dept": "交付七部", "total": 0, "overdue": 0, "overdue_rate": 0, "no_data": 0, "ontime": 0}], "no_meeting_list": [{"supervisor": "夏艺", "count": 8}, {"supervisor": "刘晓楠", "count": 7}, {"supervisor": "梁家鑫", "count": 3}, {"supervisor": "姚家鑫", "count": 3}, {"supervisor": "胡磊", "count": 3}, {"supervisor": "朱静", "count": 2}, {"supervisor": "陈娜", "count": 2}, {"supervisor": "王丹娜", "count": 2}, {"supervisor": "高伟杰", "count": 2}, {"supervisor": "袁嘉艺", "count": 2}, {"supervisor": "陆倩倩", "count": 1}, {"supervisor": "陈燕", "count": 1}, {"supervisor": "王婉秋", "count": 1}], "outline_reason_list": [{"name": "包原杰", "supervisor": "王婉秋", "reason": "客户这个星期期末考试"}, {"name": "包原杰", "supervisor": "王婉秋", "reason": "客户这个星期期末考试"}, {"name": "包原杰", "supervisor": "王婉秋", "reason": "客户这个星期期末考试"}, {"name": "蔡苏辰昇", "supervisor": "胡磊", "reason": "学生期末考试"}, {"name": "蔡苏辰昇", "supervisor": "胡磊", "reason": "学生期末考试"}, {"name": "蔡苏辰昇", "supervisor": "胡磊", "reason": "学生期末考试"}, {"name": "蔡苏辰昇", "supervisor": "胡磊", "reason": "学生期末考试"}, {"name": "畅思逸", "supervisor": "袁嘉艺", "reason": "期末考试"}, {"name": "陈可嘉", "supervisor": "胡磊", "reason": "今天才约到语音"}, {"name": "陈可嘉", "supervisor": "胡磊", "reason": "今天才约到语音"}, {"name": "陈可嘉", "supervisor": "胡磊", "reason": "今天才约到语音"}, {"name": "陈可嘉", "supervisor": "胡磊", "reason": "今天才约到语音"}, {"name": "陈可嘉", "supervisor": "胡磊", "reason": "今天才约到语音"}, {"name": "陈诗昀", "supervisor": "胡磊", "reason": "1"}, {"name": "陈诗昀", "supervisor": "胡磊", "reason": "1"}, {"name": "陈诗昀", "supervisor": "胡磊", "reason": "1"}, {"name": "陈宇桐", "supervisor": "刘晓楠", "reason": "学生成绩6.17号出来，到时候才最终确认定校；学生要求成绩出来后再开始PS写作"}, {"name": "陈宇桐", "supervisor": "刘晓楠", "reason": "学生成绩6.17号出来，到时候才最终确认定校；学生要求成绩出来后再开始PS写作"}, {"name": "陈宇桐", "supervisor": "刘晓楠", "reason": "学生成绩6.17号出来，到时候才最终确认定校；学生要求成绩出来后再开始PS写作"}, {"name": "陈籽馨", "supervisor": "梁家鑫", "reason": "跟客户协商一致"}, {"name": "陈籽馨", "supervisor": "梁家鑫", "reason": "跟客户协商一致"}, {"name": "陈籽馨", "supervisor": "梁家鑫", "reason": "跟客户协商一致"}, {"name": "成功", "supervisor": "赵倩倩", "reason": "语音沟通后调整"}, {"name": "成功", "supervisor": "赵倩倩", "reason": "语音沟通后调整"}, {"name": "程晨", "supervisor": "高伟杰", "reason": "要补充经历"}, {"name": "程晨", "supervisor": "高伟杰", "reason": "等学生补充经历"}, {"name": "程晨", "supervisor": "高伟杰", "reason": "等学生完成经历后补充"}, {"name": "崇诗睿", "supervisor": "陆倩倩", "reason": "学生要换项目 不急着递交ps"}, {"name": "崇诗睿", "supervisor": "陆倩倩", "reason": "学生要换项目，所以不急递交ps"}, {"name": "褚泽昊", "supervisor": "陈燕", "reason": "学生要求"}, {"name": "褚泽昊", "supervisor": "陈燕", "reason": "没写完"}, {"name": "褚泽昊", "supervisor": "陈燕", "reason": "考GRE"}, {"name": "褚泽昊", "supervisor": "陈燕", "reason": "没写完"}, {"name": "褚泽昊", "supervisor": "陈燕", "reason": "没写完"}, {"name": "邓镇涛", "supervisor": "陆倩倩", "reason": "等文书老师语音"}, {"name": "邓镇涛", "supervisor": "陆倩倩", "reason": "等文书老师语音"}, {"name": "董曼丹", "supervisor": "陆倩倩", "reason": "学生马上期末考试"}, {"name": "董曼丹", "supervisor": "陆倩倩", "reason": "学生马上期末考试"}, {"name": "董曼丹", "supervisor": "陆倩倩", "reason": "学生马上期末考试"}, {"name": "杜浩冉", "supervisor": "王婉秋", "reason": "学生近期在备考期末考"}, {"name": "杜浩冉", "supervisor": "王婉秋", "reason": "学生近期在备考期末考"}, {"name": "段广涛", "supervisor": "王婉秋", "reason": "定校"}, {"name": "段广涛", "supervisor": "王婉秋", "reason": "定校"}, {"name": "范奕珺", "supervisor": "王婉秋", "reason": "学生最终确认了经济方向的选校"}, {"name": "方铖", "supervisor": "袁嘉艺", "reason": "PS需要简历完成后与文书老师语音再进行写作"}, {"name": "方铖", "supervisor": "袁嘉艺", "reason": "PS需要简历完成后与文书老师语音再进行写作"}, {"name": "盖雨轩", "supervisor": "梁家鑫", "reason": "近期有考试 协商一致往后挪"}, {"name": "盖雨轩", "supervisor": "梁家鑫", "reason": "近期有考试 协商一致往后挪"}, {"name": "葛诗怡", "supervisor": "胡磊", "reason": "1"}, {"name": "葛诗怡", "supervisor": "胡磊", "reason": "1"}, {"name": "龚振", "supervisor": "陈燕", "reason": "先写金工金数不合理"}, {"name": "胡煦烨", "supervisor": "胡磊", "reason": "1"}, {"name": "胡伊凡", "supervisor": "夏艺", "reason": "无内容，等简历提交后补充"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "黄心怡", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "姜琨峰", "supervisor": "高伟杰", "reason": "客户刚定校"}, {"name": "姜琨峰", "supervisor": "高伟杰", "reason": "客户刚定校"}, {"name": "蒋敖", "supervisor": "王婉秋", "reason": "客户没空"}, {"name": "蒋敖", "supervisor": "王婉秋", "reason": "与客户协商一致"}, {"name": "蒋敖", "supervisor": "王婉秋", "reason": "与客户协商一致"}, {"name": "蒋敖", "supervisor": "王婉秋", "reason": "与客户协商一致"}, {"name": "金逸帆", "supervisor": "蔡丽佳", "reason": "学生6.11期末考试结束"}, {"name": "金逸帆", "supervisor": "蔡丽佳", "reason": "学生6.11期末考试结束"}, {"name": "金逸帆", "supervisor": "蔡丽佳", "reason": "学生6.11期末考试结束"}, {"name": "金逸帆", "supervisor": "蔡丽佳", "reason": "海本，不需要填写推荐信"}, {"name": "金逸帆", "supervisor": "蔡丽佳", "reason": "海本，不需要填写推荐信"}, {"name": "亢浩天", "supervisor": "夏艺", "reason": "给客户介绍文书时间为6.8，因此时间上稍微缓一下。"}, {"name": "亢浩天", "supervisor": "夏艺", "reason": "给客户介绍文书时间为6.8，因此时间上稍微缓一下。"}, {"name": "亢浩天", "supervisor": "夏艺", "reason": "给客户介绍文书时间为6.8，因此时间上稍微缓一下。"}, {"name": "李范祥", "supervisor": "梁家鑫", "reason": "学生在期末考试，数据科学先写"}, {"name": "李范祥", "supervisor": "梁家鑫", "reason": "学生在期末考试，数据科学先写"}, {"name": "李沐知", "supervisor": "梁家鑫", "reason": "跟学生语音沟通一致 需要调整"}, {"name": "李沐知", "supervisor": "梁家鑫", "reason": "跟学生语音沟通一致 需要调整"}, {"name": "李沐知", "supervisor": "梁家鑫", "reason": "跟学生语音沟通一致 需要调整"}, {"name": "李沐知", "supervisor": "梁家鑫", "reason": "跟学生语音沟通一致 需要调整"}, {"name": "李芯蕊", "supervisor": "高伟杰", "reason": "推进学生有困难"}, {"name": "李芯蕊", "supervisor": "高伟杰", "reason": "推进学生有困难"}, {"name": "李欣怡", "supervisor": "夏艺", "reason": "修改中，已经在企业微信有反馈"}, {"name": "李欣怡", "supervisor": "夏艺", "reason": "调整"}, {"name": "李泽诚", "supervisor": "梁家鑫", "reason": "跟学生协商一致"}, {"name": "李泽宇", "supervisor": "梁家鑫", "reason": "周二有数学考试 延迟到周三"}, {"name": "李芷妍", "supervisor": "梁家鑫", "reason": "开始时间变化"}, {"name": "李芷妍", "supervisor": "梁家鑫", "reason": "开始时间变化"}, {"name": "李芷妍", "supervisor": "梁家鑫", "reason": "开始时间变化"}, {"name": "李芷妍", "supervisor": "梁家鑫", "reason": "开始时间变化"}, {"name": "李芷妍", "supervisor": "梁家鑫", "reason": "开始时间变化"}, {"name": "梁沛晶", "supervisor": "高伟杰", "reason": "学生复习压力大，和文书老师协商后决定等考完试再开始进行脑暴，cv最近这两天会提交"}, {"name": "梁沛晶", "supervisor": "高伟杰", "reason": "学生复习压力大，和文书老师协商后决定等考完试再开始进行脑暴，cv最近这两天会提交"}, {"name": "梁沛晶", "supervisor": "高伟杰", "reason": "学生复习压力大，和文书老师协商后决定等考完试再开始进行脑暴，cv最近这两天会提交"}, {"name": "廖伟绮", "supervisor": "胡磊", "reason": "1"}, {"name": "廖伟绮", "supervisor": "胡磊", "reason": "1"}, {"name": "林书仪", "supervisor": "刘晓楠", "reason": "才定校"}, {"name": "林书仪", "supervisor": "刘晓楠", "reason": "才定校"}, {"name": "林书仪", "supervisor": "刘晓楠", "reason": "才定校"}, {"name": "林书仪", "supervisor": "刘晓楠", "reason": "才定校"}, {"name": "林义非", "supervisor": "高伟杰", "reason": "客户家长提出暂时不准备推荐信"}, {"name": "林义非", "supervisor": "高伟杰", "reason": "客户家长提出暂时不准备推荐信"}, {"name": "凌家淇", "supervisor": "刘晓楠", "reason": "学生之前没空"}, {"name": "凌家淇", "supervisor": "刘晓楠", "reason": "学生之前没空"}, {"name": "刘博达", "supervisor": "刘晓楠", "reason": "之前没写"}, {"name": "刘远航", "supervisor": "夏艺", "reason": "等简历经历先确定"}, {"name": "刘梓源", "supervisor": "姚家鑫", "reason": "学生需要带着修改下经历"}, {"name": "吕安泽", "supervisor": "夏艺", "reason": "初次设置"}, {"name": "吕安泽", "supervisor": "夏艺", "reason": "初次设置"}, {"name": "吕安泽", "supervisor": "夏艺", "reason": "初次设置"}, {"name": "吕安泽", "supervisor": "夏艺", "reason": "初次设置"}, {"name": "吕安泽", "supervisor": "夏艺", "reason": "初次设置"}, {"name": "罗曲悠", "supervisor": "王婉秋", "reason": "学生最近在忙期末考"}, {"name": "罗曲悠", "supervisor": "王婉秋", "reason": "学生最近在忙期末考"}, {"name": "罗曲悠", "supervisor": "王婉秋", "reason": "学生最近在忙期末考"}, {"name": "罗曲悠", "supervisor": "王婉秋", "reason": "学生最近在忙期末考"}, {"name": "罗曲悠", "supervisor": "王婉秋", "reason": "学生最近在忙期末考"}, {"name": "马睿泽", "supervisor": "刘晓楠", "reason": "学生之前没写"}, {"name": "马睿泽", "supervisor": "刘晓楠", "reason": "学生之前没写"}, {"name": "毛若盈", "supervisor": "袁嘉艺", "reason": "和学生约定了时间"}, {"name": "米春雨", "supervisor": "姚家鑫", "reason": "之前写好了没有点击提交键，我完善之后发给她去check"}, {"name": "米春雨", "supervisor": "姚家鑫", "reason": "之前写好了没有点击提交键，我完善之后发给她去check"}, {"name": "米春雨", "supervisor": "姚家鑫", "reason": "之前写好了没有点击提交键，我完善之后发给她去check"}, {"name": "齐书涵", "supervisor": "梁家鑫", "reason": "近期有暑课"}, {"name": "佘雨婷", "supervisor": "姚家鑫", "reason": "最近要考雅思和期末"}, {"name": "沈星瞳", "supervisor": "刘晓楠", "reason": "之前没写"}, {"name": "沈星瞳", "supervisor": "刘晓楠", "reason": "之前没写"}, {"name": "盛之珏", "supervisor": "王婉秋", "reason": "学生表示最近期末周 只有这个时间有空闲时间填提纲"}, {"name": "石淑琳", "supervisor": "胡磊", "reason": "1"}, {"name": "宋丹彤", "supervisor": "谢子月", "reason": "找老师"}, {"name": "宋丹彤", "supervisor": "谢子月", "reason": "找老师"}, {"name": "孙艺萌", "supervisor": "刘晓楠", "reason": "刚开始配置"}, {"name": "唐嘉旎", "supervisor": "谢子月", "reason": "推荐人确认有困难"}, {"name": "唐嘉旎", "supervisor": "谢子月", "reason": "推荐人确认有困难"}, {"name": "陶阳", "supervisor": "刘晓楠", "reason": "学生最近在忙实验和法语考试，申请延期"}, {"name": "陶阳", "supervisor": "刘晓楠", "reason": "学生最近在忙实验和法语考试，申请延期"}, {"name": "陶阳", "supervisor": "刘晓楠", "reason": "学生最近在忙实验和法语考试，申请延期"}, {"name": "陶阳", "supervisor": "刘晓楠", "reason": "学生最近在忙实验和法语考试，申请延期"}, {"name": "田芩瑞", "supervisor": "高伟杰", "reason": "外出访学，延长一周"}, {"name": "王杰", "supervisor": "胡磊", "reason": "今天才语音"}, {"name": "王杰", "supervisor": "胡磊", "reason": "今天才语音"}, {"name": "王杰", "supervisor": "胡磊", "reason": "今天才语音"}, {"name": "王杰", "supervisor": "胡磊", "reason": "今天才语音"}, {"name": "王俊熙", "supervisor": "谢子月", "reason": "学生最近期末周，木有时间填写文书提纲"}, {"name": "王俊熙", "supervisor": "谢子月", "reason": "学生最近期末周，木有时间填写文书提纲"}, {"name": "王玮琛", "supervisor": "姚家鑫", "reason": "学生想先写PS2"}, {"name": "王相怀", "supervisor": "姚家鑫", "reason": "拖延症"}, {"name": "王彦衡", "supervisor": "高伟杰", "reason": "学生要补充经历"}, {"name": "王一帆", "supervisor": "高伟杰", "reason": "学生准备期末周没空"}, {"name": "王一帆", "supervisor": "高伟杰", "reason": "学生准备期末周没空"}, {"name": "王一帆", "supervisor": "高伟杰", "reason": "学生准备期末周没空"}, {"name": "温家恒", "supervisor": "刘晓楠", "reason": "协商调整"}, {"name": "温家恒", "supervisor": "刘晓楠", "reason": "协商调整"}, {"name": "邬姜", "supervisor": "陈燕", "reason": "联系学生补充素材中"}, {"name": "邬姜", "supervisor": "陈燕", "reason": "CV联系学生补充素材中，定稿完毕再确定PS"}, {"name": "邬姜", "supervisor": "陈燕", "reason": "CV联系学生补充素材中，定稿完毕再确定PS"}, {"name": "吴静伊", "supervisor": "赵倩倩", "reason": "客户申提前批，更新经历"}, {"name": "肖金雨", "supervisor": "梁家鑫", "reason": "语音在6.5"}, {"name": "肖金雨", "supervisor": "梁家鑫", "reason": "语音在6.5"}, {"name": "肖金雨", "supervisor": "梁家鑫", "reason": "语音在6.5"}, {"name": "肖金雨", "supervisor": "梁家鑫", "reason": "语音在6.5"}, {"name": "肖金雨", "supervisor": "梁家鑫", "reason": "语音在6.5"}, {"name": "肖宇轩", "supervisor": "陈燕", "reason": "换老师"}, {"name": "谢乐宇", "supervisor": "高伟杰", "reason": "学生要调整"}, {"name": "谢乐宇", "supervisor": "高伟杰", "reason": "学生要调整"}, {"name": "谢乐宇", "supervisor": "高伟杰", "reason": "学生要调整"}, {"name": "谢量羽", "supervisor": "蔡丽佳", "reason": "误操作"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "学生在日本 分配两天后才有时间"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "学生在日本 分配两天后才有时间"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "修改最晚交稿时间"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "学生在日本 分配两天后才有时间"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "学生在日本 分配两天后才有时间"}, {"name": "谢沁芫", "supervisor": "刘晓楠", "reason": "学生在日本 分配两天后才有时间"}, {"name": "谢欣池", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "谢欣池", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "谢欣池", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "谢欣池", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "谢欣池", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "徐千尧", "supervisor": "姚家鑫", "reason": "拖延症"}, {"name": "徐一明", "supervisor": "高伟杰", "reason": "学生缺少很多经历，要等经历完成后再补充"}, {"name": "薛佶阳", "supervisor": "高伟杰", "reason": "需要补充经历"}, {"name": "尹猎云", "supervisor": "袁嘉艺", "reason": "学生要期末考试，主动提出要晚点写简历"}, {"name": "张曼临", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "张曼临", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "张曼临", "supervisor": "刘晓楠", "reason": "初次"}, {"name": "张雨彤", "supervisor": "葛丹丹", "reason": "更新经历"}, {"name": "张育祯", "supervisor": "陈燕", "reason": "期末周，要报告中"}, {"name": "赵一冉", "supervisor": "王婉秋", "reason": "无提纲"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "6.3才语音"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "6.3才语音"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "需要看本学期成绩，更换选校"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "6.3才语音"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "需要看本学期成绩，更换选校"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "6.3才语音"}, {"name": "赵梓文", "supervisor": "梁家鑫", "reason": "6.3才语音"}, {"name": "郑雨佳", "supervisor": "王婉秋", "reason": "本周任务太多，需要下周才有时间"}, {"name": "郑雨佳", "supervisor": "王婉秋", "reason": "本周任务太多，需要下周才有时间"}, {"name": "周昕彤", "supervisor": "胡磊", "reason": "1"}, {"name": "周昕彤", "supervisor": "胡磊", "reason": "1"}, {"name": "周昕彤", "supervisor": "胡磊", "reason": "1"}, {"name": "周雨晴", "supervisor": "陈燕", "reason": "联系学生补充素材中"}, {"name": "庄子鲲", "supervisor": "陈燕", "reason": "需要调整内容较多"}], "reason_list": [{"name": "于卉", "count": 12, "group": "李莹莹"}, {"name": "焦镜棉", "count": 9, "group": "王婉秋"}, {"name": "刘乐怡", "count": 5, "group": "李莹莹"}, {"name": "祁棚轩", "count": 5, "group": "祁棚轩"}, {"name": "吴江燕", "count": 5, "group": "李莹莹"}, {"name": "丁冰璇", "count": 3, "group": "李乔乔"}, {"name": "雷爱玲", "count": 3, "group": "李乔乔"}, {"name": "李雪莹", "count": 3, "group": "王婉秋"}, {"name": "梁佳欣", "count": 3, "group": "李乔乔"}, {"name": "吕晨雨", "count": 3, "group": "李乔乔"}, {"name": "谭欣雨", "count": 3, "group": "胡心伟"}, {"name": "王文静", "count": 3, "group": "胡心伟"}, {"name": "王楠楠", "count": 2, "group": "李乔乔"}, {"name": "闻静", "count": 2, "group": "李乔乔"}, {"name": "夏萱", "count": 2, "group": "胡心伟"}, {"name": "朱钰茜", "count": 2, "group": "李莹莹"}, {"name": "邹雨情", "count": 2, "group": "李乔乔"}, {"name": "顾婷婷", "count": 1, "group": "胡心伟"}, {"name": "韩旭", "count": 1, "group": "李乔乔"}, {"name": "胡方圆", "count": 1, "group": "王婉秋"}, {"name": "胡磊", "count": 1, "group": "祁棚轩"}, {"name": "胡心伟", "count": 1, "group": "胡心伟"}, {"name": "蒋沁", "count": 1, "group": "祁棚轩"}, {"name": "李聪", "count": 1, "group": "胡心伟"}, {"name": "李乔乔", "count": 1, "group": "李乔乔"}, {"name": "李王琳", "count": 1, "group": "王婉秋"}, {"name": "李玮熠", "count": 1, "group": "祁棚轩"}, {"name": "李莹莹", "count": 1, "group": "李莹莹"}, {"name": "秦蕊荣", "count": 1, "group": "李莹莹"}, {"name": "王安琪", "count": 1, "group": "胡心伟"}, {"name": "王浩", "count": 1, "group": "李乔乔"}, {"name": "王婉秋", "count": 1, "group": "王婉秋"}, {"name": "王子怡", "count": 1, "group": "李莹莹"}, {"name": "徐雅轩", "count": 1, "group": "王婉秋"}, {"name": "于陈龙", "count": 1, "group": "王婉秋"}, {"name": "袁嘉艺", "count": 1, "group": "胡心伟"}, {"name": "张姝颖", "count": 1, "group": "李乔乔"}, {"name": "张也", "count": 1, "group": "祁棚轩"}], "ai_rate_by_supervisor": [{"name": "孙美冬", "low": 49, "mid": 4, "high": 0}, {"name": "彭明珠", "low": 215, "mid": 6, "high": 0}, {"name": "徐萍", "low": 141, "mid": 5, "high": 0}, {"name": "李倩倩", "low": 176, "mid": 41, "high": 0}, {"name": "葛丹丹", "low": 5, "mid": 0, "high": 0}, {"name": "蒯冰洁", "low": 187, "mid": 5, "high": 0}, {"name": "蔡丽佳", "low": 16, "mid": 0, "high": 0}, {"name": "袁嘉艺", "low": 110, "mid": 7, "high": 0}, {"name": "郭佳佳", "low": 302, "mid": 9, "high": 0}, {"name": "陈娜", "low": 51, "mid": 3, "high": 6}, {"name": "陈燕", "low": 3, "mid": 0, "high": 0}, {"name": "高伟杰", "low": 15, "mid": 2, "high": 0}], "ai_rate_by_dept": [{"dept": "交付一部", "low": 292, "mid": 48, "high": 6}, {"dept": "交付七部", "low": 202, "mid": 7, "high": 0}, {"dept": "交付三部", "low": 146, "mid": 5, "high": 0}, {"dept": "交付二部", "low": 412, "mid": 16, "high": 0}, {"dept": "交付六部", "low": 218, "mid": 6, "high": 0}], "ai_total": 1358, "dept_delivery": [{"dept": "交付一部", "type": "CV", "completed": 42, "overdue": 16, "avg_days": 6.4, "overdue_rate": 38.1}, {"dept": "交付一部", "type": "PS", "completed": 41, "overdue": 14, "avg_days": 12.0, "overdue_rate": 34.15}, {"dept": "交付一部", "type": "RL", "completed": 61, "overdue": 0, "avg_days": 6.0, "overdue_rate": 0}, {"dept": "交付七部", "type": "CV", "completed": 28, "overdue": 11, "avg_days": 6.1, "overdue_rate": 39.29}, {"dept": "交付七部", "type": "PS", "completed": 26, "overdue": 12, "avg_days": 11.7, "overdue_rate": 46.15}, {"dept": "交付七部", "type": "RL", "completed": 30, "overdue": 0, "avg_days": 4.3, "overdue_rate": 0}, {"dept": "交付三部", "type": "CV", "completed": 19, "overdue": 4, "avg_days": 6.1, "overdue_rate": 21.05}, {"dept": "交付三部", "type": "PS", "completed": 24, "overdue": 5, "avg_days": 10.6, "overdue_rate": 20.83}, {"dept": "交付三部", "type": "RL", "completed": 34, "overdue": 0, "avg_days": 4.2, "overdue_rate": 0}, {"dept": "交付二部", "type": "CV", "completed": 26, "overdue": 9, "avg_days": 5.0, "overdue_rate": 34.62}, {"dept": "交付二部", "type": "PS", "completed": 52, "overdue": 16, "avg_days": 11.2, "overdue_rate": 30.77}, {"dept": "交付二部", "type": "RL", "completed": 68, "overdue": 0, "avg_days": 4.1, "overdue_rate": 0}, {"dept": "交付六部", "type": "CV", "completed": 23, "overdue": 6, "avg_days": 5.5, "overdue_rate": 26.09}, {"dept": "交付六部", "type": "PS", "completed": 31, "overdue": 9, "avg_days": 11.2, "overdue_rate": 29.03}, {"dept": "交付六部", "type": "RL", "completed": 24, "overdue": 0, "avg_days": 6.3, "overdue_rate": 0}, {"dept": "总体", "type": "CV", "completed": 138, "overdue": 46, "avg_days": 5.9, "overdue_rate": 33.33}, {"dept": "总体", "type": "PS", "completed": 174, "overdue": 56, "avg_days": 11.4, "overdue_rate": 32.18}, {"dept": "总体", "type": "RL", "completed": 218, "overdue": 0, "avg_days": 4.9, "overdue_rate": 0}], "dept_delivery_grid": [{"dept": "交付一部", "CV_completed": 42, "CV_overdue": 16, "CV_avg_days": 6.4, "CV_overdue_rate": 38.1, "PS_completed": 41, "PS_overdue": 14, "PS_avg_days": 12.0, "PS_overdue_rate": 34.15, "RL_completed": 61, "RL_overdue": 0, "RL_avg_days": 6.0, "RL_overdue_rate": 0}, {"dept": "交付二部", "CV_completed": 26, "CV_overdue": 9, "CV_avg_days": 5.0, "CV_overdue_rate": 34.62, "PS_completed": 52, "PS_overdue": 16, "PS_avg_days": 11.2, "PS_overdue_rate": 30.77, "RL_completed": 68, "RL_overdue": 0, "RL_avg_days": 4.1, "RL_overdue_rate": 0}, {"dept": "交付三部", "CV_completed": 19, "CV_overdue": 4, "CV_avg_days": 6.1, "CV_overdue_rate": 21.05, "PS_completed": 24, "PS_overdue": 5, "PS_avg_days": 10.6, "PS_overdue_rate": 20.83, "RL_completed": 34, "RL_overdue": 0, "RL_avg_days": 4.2, "RL_overdue_rate": 0}, {"dept": "交付六部", "CV_completed": 23, "CV_overdue": 6, "CV_avg_days": 5.5, "CV_overdue_rate": 26.09, "PS_completed": 31, "PS_overdue": 9, "PS_avg_days": 11.2, "PS_overdue_rate": 29.03, "RL_completed": 24, "RL_overdue": 0, "RL_avg_days": 6.3, "RL_overdue_rate": 0}, {"dept": "交付七部", "CV_completed": 28, "CV_overdue": 11, "CV_avg_days": 6.1, "CV_overdue_rate": 39.29, "PS_completed": 26, "PS_overdue": 12, "PS_avg_days": 11.7, "PS_overdue_rate": 46.15, "RL_completed": 30, "RL_overdue": 0, "RL_avg_days": 4.3, "RL_overdue_rate": 0}, {"dept": "总体", "CV_completed": 138, "CV_overdue": 46, "CV_avg_days": 5.9, "CV_overdue_rate": 33.33, "PS_completed": 174, "PS_overdue": 56, "PS_avg_days": 11.4, "PS_overdue_rate": 32.18, "RL_completed": 218, "RL_overdue": 0, "RL_avg_days": 4.9, "RL_overdue_rate": 0}], "dept_delivery_monthly": [{"dept": "交付一部", "type": "CV", "completed": 131, "overdue": 32, "avg_days": 5.8, "overdue_rate": 24.43}, {"dept": "交付一部", "type": "PS", "completed": 115, "overdue": 42, "avg_days": 11.5, "overdue_rate": 36.52}, {"dept": "交付一部", "type": "RL", "completed": 136, "overdue": 1, "avg_days": 4.5, "overdue_rate": 0.74}, {"dept": "交付七部", "type": "CV", "completed": 89, "overdue": 33, "avg_days": 6.3, "overdue_rate": 37.08}, {"dept": "交付七部", "type": "PS", "completed": 93, "overdue": 37, "avg_days": 11.8, "overdue_rate": 39.78}, {"dept": "交付七部", "type": "RL", "completed": 95, "overdue": 1, "avg_days": 5.5, "overdue_rate": 1.05}, {"dept": "交付三部", "type": "CV", "completed": 89, "overdue": 9, "avg_days": 4.6, "overdue_rate": 10.11}, {"dept": "交付三部", "type": "PS", "completed": 80, "overdue": 6, "avg_days": 7.6, "overdue_rate": 7.5}, {"dept": "交付三部", "type": "RL", "completed": 91, "overdue": 0, "avg_days": 4.1, "overdue_rate": 0}, {"dept": "交付二部", "type": "CV", "completed": 191, "overdue": 47, "avg_days": 5.1, "overdue_rate": 24.61}, {"dept": "交付二部", "type": "PS", "completed": 147, "overdue": 24, "avg_days": 9.3, "overdue_rate": 16.33}, {"dept": "交付二部", "type": "RL", "completed": 189, "overdue": 2, "avg_days": 4.2, "overdue_rate": 1.06}, {"dept": "交付六部", "type": "CV", "completed": 95, "overdue": 41, "avg_days": 6.5, "overdue_rate": 43.16}, {"dept": "交付六部", "type": "PS", "completed": 77, "overdue": 29, "avg_days": 11.8, "overdue_rate": 37.66}, {"dept": "交付六部", "type": "RL", "completed": 79, "overdue": 1, "avg_days": 5.6, "overdue_rate": 1.27}, {"dept": "总体", "type": "CV", "completed": 601, "overdue": 162, "avg_days": 5.6, "overdue_rate": 26.96}, {"dept": "总体", "type": "PS", "completed": 515, "overdue": 138, "avg_days": 10.3, "overdue_rate": 26.8}, {"dept": "总体", "type": "RL", "completed": 596, "overdue": 5, "avg_days": 4.6, "overdue_rate": 0.84}]};
 
 // ============================================================
-// Chart defaults
+// Password Verification
 // ============================================================
-Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif";
-Chart.defaults.font.size = 12;
-Chart.defaults.color = '#64748b';
-Chart.defaults.plugins.legend.labels.usePointStyle = true;
-Chart.defaults.plugins.legend.labels.padding = 16;
+const PW_HASH = '84a76a0ce5be914eb7911d62d51d6af1724239833c53bff10efbaa7dfd376fed';
+async function sha256(msg) {
+  const buf = new TextEncoder().encode(msg);
+  const hash = await crypto.subtle.digest('SHA-256', buf);
+  return Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
+}
+async function verifyPassword() {
+  const input = document.getElementById('pwInput').value;
+  if (!input) return;
+  const h = await sha256(input);
+  if (h === PW_HASH) {
+    document.getElementById('pwOverlay').style.display = 'none';
+    document.getElementById('mainContent').style.display = 'block';
+  } else {
+    document.getElementById('pwError').style.display = 'block';
+    document.getElementById('pwInput').value = '';
+    setTimeout(()=>{ document.getElementById('pwError').style.display = 'none'; }, 2000);
+  }
+}
 
 // ============================================================
 // KPI Cards
 // ============================================================
-const totalDelivery = Object.values(DATA.dept_delivery)
-  .filter(k => k !== DATA.dept_delivery["总体"])
-  .flatMap(v => v).reduce((acc, v) => acc + v.num, 0);
-
-// PS超期率取总体加权
-const totalPS = DATA.dept_delivery["总体"].find(d => d.type === "PS");
 const kpiConfig = [
-  { label: '本周AI检测总量', value: DATA.ai.total, suffix: '篇', color: 'blue', sub: '整体平均AI率 ' + DATA.ai.avg + '%' },
-  { label: '提纲设置逾期', value: DATA.outline_overdue_persons.reduce((s,p)=>s+p.overdue,0), suffix: '人', color: 'red', sub: '王婉秋(2)、夏艺(1)、姚家鑫(1)' },
-  { label: 'PS平均交付天数', value: totalPS ? totalPS.avg_days : 10.3, suffix: '天', color: 'green', sub: 'PS超期率 ' + (totalPS ? totalPS.exceed_rate : 15.03) + '%' },
-  { label: '无腾会记录', value: DATA.no_meeting.total, suffix: '个', color: 'purple', sub: '交付一部最多(8个)' },
-  { label: 'PS平均超期率', value: '15.03', suffix: '%', color: 'cyan', sub: '交付七部最高 26.88%' }
+  { label: '本周客户总数', value: DATA.kpis.total_clients, suffix: '人', color: 'blue', sub: '交付时效相关' },
+  { label: '提纲设置逾期', value: DATA.kpis.outline_overdue, suffix: '人', color: 'red', sub: '逾期率 ' + DATA.kpis.outline_overdue_rate + '%' },
+  { label: '首次沟通逾期', value: DATA.kpis.comm_overdue, suffix: '人', color: 'amber', sub: '首次腾会沟通超时' },
+  { label: '平均交付天数', value: DATA.kpis.avg_delivery_days, suffix: '天', color: 'green', sub: '超期交付 ' + DATA.kpis.delivery_overdue_count + ' 单' },
+  { label: '无腾会记录', value: DATA.kpis.no_meeting_count, suffix: '个客户', color: 'purple', sub: '需补充会议记录' },
+
 ];
 
 const kpiGrid = document.getElementById('kpiGrid');
@@ -732,152 +583,111 @@ kpiConfig.forEach(kpi => {
 });
 
 // ============================================================
-// 1. 提纲逾期 - 按人
+// Chart defaults
+// ============================================================
+Chart.defaults.font.family = "-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif";
+Chart.defaults.font.size = 12;
+Chart.defaults.color = '#64748b';
+Chart.defaults.plugins.legend.labels.usePointStyle = true;
+Chart.defaults.plugins.legend.labels.padding = 16;
+
+const COLORS = {
+  cv: '#3b82f6', ps: '#f59e0b', rl: '#8b5cf6',
+  red: '#ef4444', green: '#10b981', cyan: '#06b6d4',
+  pink: '#ec4899', gray: '#94a3b8',
+};
+
+// ============================================================
+// 1. 提纲设置逾期 - 按售后主管 (Sheet1: total_overdue)
 // ============================================================
 (function() {
-  const persons = DATA.outline_overdue_persons.map(p => p.person);
-  const colors = DATA.outline_overdue_persons.map(p => p.overdue > 0 ? '#ef4444' : '#cbd5e1');
+  const persons = DATA.person_outline.map(p => p.person);
+  const colors = DATA.person_outline.map(p => p.total_overdue > 0 ? '#ef4444' : '#cbd5e1');
   new Chart(document.getElementById('chartOutlinePerson'), {
     type: 'bar',
     data: {
       labels: persons,
       datasets: [
-        { label: '超时客户', data: DATA.outline_overdue_persons.map(p => p.overdue), backgroundColor: colors, borderRadius: 3 }
+        { label: '超时客户', data: DATA.person_outline.map(p => p.total_overdue), backgroundColor: colors, borderRadius: 3 },
       ]
     },
     options: {
       responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { grid: { display: false } }, y: { beginAtZero: true, ticks: { stepSize: 1 } } }
+      plugins: { title: { display: false }, legend: { display: false } },
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, ticks: { stepSize: 1 } }
+      }
     }
   });
 })();
 
 // ============================================================
-// 2. 提纲逾期 - 按部门
+// 2. 提纲设置逾期 - 按部门 (Sheet1: total_overdue)
 // ============================================================
 (function() {
-  const depts = DATA.outline_overdue_depts.map(d => d.dept);
-  const colors = DATA.outline_overdue_depts.map(d => d.overdue > 0 ? '#ef4444' : '#cbd5e1');
+  // Exclude 总体 row for the chart, show it in table
+  const depts = DATA.dept_outline.filter(d => d.dept !== '总体').map(d => d.dept);
+  const colors = DATA.dept_outline.filter(d => d.dept !== '总体').map(d => d.total_overdue > 0 ? '#ef4444' : '#cbd5e1');
   new Chart(document.getElementById('chartOutlineDept'), {
     type: 'bar',
     data: {
       labels: depts,
       datasets: [
-        { label: '超时客户', data: DATA.outline_overdue_depts.map(d => d.overdue), backgroundColor: colors, borderRadius: 3 }
+        { label: '超时客户', data: DATA.dept_outline.filter(d => d.dept !== '总体').map(d => d.total_overdue), backgroundColor: colors, borderRadius: 3 },
       ]
     },
     options: {
-      indexAxis: 'y', responsive: true, maintainAspectRatio: true,
-      plugins: { legend: { display: false } },
-      scales: { x: { beginAtZero: true, ticks: { stepSize: 1 } }, y: { grid: { display: false } } }
-    }
-  });
-})();
-
-// ============================================================
-// 3. 延期原因（横向 bar chart，plain style）
-// ============================================================
-(function() {
-  const reasons = DATA.delay_reasons;
-  const maxCount = reasons[0][1];
-  const colors = ['#ef4444','#ef4444','#ef4444','#f59e0b','#f59e0b','#f59e0b','#f59e0b','#f59e0b','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6','#3b82f6'];
-  const wrap = document.getElementById('reasonBarsOutline');
-  reasons.forEach((r, i) => {
-    const pct = (r[1] / maxCount * 100).toFixed(1);
-    wrap.innerHTML += `
-      <div class="reason-bar-wrap">
-        <div class="reason-label" title="${r[0]}">${r[0]}</div>
-        <div class="reason-bar-bg">
-          <div class="reason-bar" style="width:${pct}%;background:${colors[i]};">${r[1]}</div>
-        </div>
-        <div class="reason-count">${r[1]}</div>
-      </div>`;
-  });
-})();
-
-// ============================================================
-// 4. 部门交付时效 Heatmap
-// ============================================================
-(function() {
-  const depts = ["交付一部","交付二部","交付三部","交付六部","交付七部","总体"];
-  const types = ["CV","PS","RL"];
-  const thead = document.querySelector('#deliveryHeatmap thead');
-  const tbody = document.querySelector('#deliveryHeatmap tbody');
-
-  let headHTML = '<tr><th>部门</th>';
-  types.forEach(t => {
-    headHTML += `<th colspan="3" style="border-left:1px solid #e2e8f0">${t}</th>`;
-  });
-  headHTML += '</tr><tr><th></th>';
-  types.forEach(() => {
-    headHTML += '<th style="border-left:1px solid #e2e8f0">均天数</th><th>量</th><th>超期率</th>';
-  });
-  headHTML += '</tr>';
-  thead.innerHTML = headHTML;
-
-  depts.forEach(dept => {
-    const rows = DATA.dept_delivery[dept];
-    let rowHTML = `<tr class="${dept === '总体' ? 'total-row' : ''}"><td>${dept}</td>`;
-    types.forEach(t => {
-      const r = rows ? rows.find(x => x.type === t) : null;
-      if (r) {
-        const heatClass = r.exceed_rate === 0 ? 'heat-0' : r.exceed_rate < 10 ? 'heat-1' : 'heat-2';
-        rowHTML += `<td style="border-left:1px solid #f1f5f9">${r.avg_days}天</td><td>${r.num}</td><td class="${heatClass}">${r.exceed_rate}%</td>`;
-      } else {
-        rowHTML += '<td style="border-left:1px solid #f1f5f9">—</td><td>—</td><td>—</td>';
-      }
-    });
-    rowHTML += '</tr>';
-    tbody.innerHTML += rowHTML;
-  });
-})();
-
-// ============================================================
-// 5. AI率 - 按文案主管
-// ============================================================
-(function() {
-  const mgrs = Object.keys(DATA.ai.by_mgr);
-  const lows = mgrs.map(m => DATA.ai.by_mgr[m].low);
-  const mids = mgrs.map(m => DATA.ai.by_mgr[m].mid);
-  const highs = mgrs.map(m => DATA.ai.by_mgr[m].high);
-  new Chart(document.getElementById('chartAiRateSupervisor'), {
-    type: 'bar',
-    data: {
-      labels: mgrs,
-      datasets: [
-        { label: '低(<20%)',  data: lows,  backgroundColor: '#10b981', borderRadius: 2 },
-        { label: '中(20-50%)',data: mids,  backgroundColor: '#f59e0b', borderRadius: 2 },
-        { label: '高(≥50%)', data: highs, backgroundColor: '#ef4444', borderRadius: 2 }
-      ]
-    },
-    options: {
+      indexAxis: 'y',
       responsive: true, maintainAspectRatio: true,
-      plugins: { title: { display: false } },
+      plugins: { title: { display: false }, legend: { display: false } },
       scales: {
-        x: { stacked: true, grid: { display: false }, ticks: { maxRotation: 45 } },
-        y: { stacked: true, beginAtZero: true }
+        x: { beginAtZero: true, ticks: { stepSize: 1 } },
+        y: { grid: { display: false } }
       }
     }
   });
 })();
 
 // ============================================================
-// 7. AI率 - 按部门
+// 3. 提纲设置逾期原因
 // ============================================================
 (function() {
-  const depts = Object.keys(DATA.ai.by_dept);
-  const lows  = depts.map(d => DATA.ai.by_dept[d].low);
-  const mids  = depts.map(d => DATA.ai.by_dept[d].mid);
-  const highs = depts.map(d => DATA.ai.by_dept[d].high);
-  new Chart(document.getElementById('chartAiRateDept'), {
+  const top10 = DATA.outline_reason_list.slice(0, 10);
+  const bgColors = top10.map((r, i) => {
+    if (i < 3) return '#ef4444';
+    if (i < 6) return '#f59e0b';
+    return '#3b82f6';
+  });
+  new Chart(document.getElementById('chartOutlineReasons'), {
     type: 'bar',
     data: {
-      labels: depts,
+      labels: top10.map(r => r.reason),
+      datasets: [{ label: '客户数', data: top10.map(r => r.count), backgroundColor: bgColors, borderRadius: 4 }]
+    },
+    options: {
+      indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: false }, legend: { display: false } },
+      scales: {
+        x: { beginAtZero: true, ticks: { stepSize: 2 }, grid: { color: '#f1f5f9' } },
+        y: { grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// ============================================================
+// 4. 首次沟通逾期 - 按售后主管
+// ============================================================
+(function() {
+  new Chart(document.getElementById('chartCommPerson'), {
+    type: 'bar',
+    data: {
+      labels: DATA.person_comm.map(p => p.person),
       datasets: [
-        { label: '低(<20%)',  data: lows,  backgroundColor: '#10b981', borderRadius: 2 },
-        { label: '中(20-50%)',data: mids,  backgroundColor: '#f59e0b', borderRadius: 2 },
-        { label: '高(≥50%)', data: highs, backgroundColor: '#ef4444', borderRadius: 2 }
+        { label: '超时', data: DATA.person_comm.map(p => p.overdue), backgroundColor: '#ef4444', borderRadius: 3 },
+        { label: '准时', data: DATA.person_comm.map(p => p.ontime), backgroundColor: '#10b981', borderRadius: 3 },
+        { label: '无有效数据', data: DATA.person_comm.map(p => p.no_data), backgroundColor: '#cbd5e1', borderRadius: 3 },
       ]
     },
     options: {
@@ -885,51 +695,285 @@ kpiConfig.forEach(kpi => {
       plugins: { title: { display: false } },
       scales: {
         x: { stacked: true, grid: { display: false } },
-        y: { stacked: true, beginAtZero: true }
+        y: { stacked: true, beginAtZero: true, ticks: { stepSize: 2 } }
       }
     }
   });
 })();
 
 // ============================================================
-// 8. 无腾会记录 - 按部门横向 bar
+// 5. 首次沟通逾期 - 按部门 (compute ontime/no_data from available fields)
 // ============================================================
 (function() {
-  const depts = Object.keys(DATA.no_meeting.by_dept);
-  const counts = depts.map(d => DATA.no_meeting.by_dept[d]);
-  const maxCount = Math.max(...counts);
-  const wrap = document.getElementById('noMeetingBars');
-  wrap.className = 'no-meeting-list';
-  const barColors = ['#3b82f6','#10b981','#f59e0b','#8b5cf6','#ef4444'];
-  depts.forEach((dept, i) => {
-    const pct = (counts[i] / maxCount * 100).toFixed(1);
-    wrap.innerHTML += `
-      <div class="no-meeting-item">
-        <div class="no-meeting-name">${dept}</div>
-        <div class="no-meeting-bar-bg">
-          <div class="no-meeting-bar" style="width:${pct}%;background:${barColors[i]};">${counts[i]}</div>
-        </div>
-        <div class="no-meeting-val">${counts[i]}</div>
-      </div>`;
+  const commData = DATA.dept_comm.map(d => {
+    const noData = (d.no_join_time || 0) + (d.no_meeting_time || 0);
+    return {
+      dept: d.dept,
+      overdue: d.overdue,
+      no_data: noData,
+      ontime: d.total_clients - d.overdue - noData
+    };
+  });
+  new Chart(document.getElementById('chartCommDept'), {
+    type: 'bar',
+    data: {
+      labels: commData.map(d => d.dept),
+      datasets: [
+        { label: '超时', data: commData.map(d => d.overdue), backgroundColor: '#ef4444', borderRadius: 3 },
+        { label: '准时', data: commData.map(d => d.ontime), backgroundColor: '#10b981', borderRadius: 3 },
+        { label: '无有效数据', data: commData.map(d => d.no_data), backgroundColor: '#cbd5e1', borderRadius: 3 },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: true,
+      plugins: { title: { display: false } },
+      scales: {
+        x: { stacked: true, beginAtZero: true, ticks: { stepSize: 5 } },
+        y: { stacked: true, grid: { display: false } }
+      }
+    }
   });
 })();
 
 // ============================================================
-// 9. 提纲逾期明细表
+// 6. FIX #4: Delivery metrics as heatmap table
+// ============================================================
+(function() {
+  const table = document.getElementById('deliveryHeatmap');
+  const thead = table.querySelector('thead');
+  const tbody = table.querySelector('tbody');
+
+  // Filter to this week, exclude total rows, get unique depts
+  const entries = DATA.dept_delivery.filter(d => d.period === DATA.period && d.dept !== '总体');
+  const depts = [...new Set(entries.map(e => e.dept))];
+  const types = ['CV', 'PS', 'RL'];
+
+  // Header
+  let headerHTML = '<tr><th>部门</th>';
+  types.forEach(t => {
+    headerHTML += '<th colspan="3">' + t + '</th>';
+  });
+  headerHTML += '</tr><tr><th></th>';
+  types.forEach(() => {
+    headerHTML += '<th>平均天数</th><th>完成量</th><th>超期率</th>';
+  });
+  headerHTML += '</tr>';
+  thead.innerHTML = headerHTML;
+
+  // Body
+  let bodyHTML = '';
+  depts.forEach(dept => {
+    bodyHTML += '<tr><td>' + dept + '</td>';
+    types.forEach(type => {
+      const item = entries.find(e => e.dept === dept && e.doc_type === type);
+      if (item) {
+        const heatClass = item.overdue_rate > 20 ? 'heat-2' : item.overdue_rate > 5 ? 'heat-1' : 'heat-0';
+        bodyHTML += '<td>' + item.avg_days.toFixed(1) + '</td>';
+        bodyHTML += '<td>' + item.completed + '</td>';
+        bodyHTML += '<td class="' + heatClass + '">' + item.overdue_rate.toFixed(1) + '%</td>';
+      } else {
+        bodyHTML += '<td>-</td><td>-</td><td>-</td>';
+      }
+    });
+    bodyHTML += '</tr>';
+  });
+
+  // Total row
+  bodyHTML += '<tr class="total-row"><td>总体</td>';
+  types.forEach(type => {
+    const totalEntry = DATA.dept_delivery.find(d => d.dept === '总体' && d.doc_type === type);
+    if (totalEntry) {
+      bodyHTML += '<td>' + totalEntry.avg_days.toFixed(1) + '</td>';
+      bodyHTML += '<td>' + totalEntry.completed + '</td>';
+      bodyHTML += '<td>' + totalEntry.overdue_rate.toFixed(1) + '%</td>';
+    } else {
+      bodyHTML += '<td>-</td><td>-</td><td>-</td>';
+    }
+  });
+  bodyHTML += '</tr>';
+  tbody.innerHTML = bodyHTML;
+})();
+
+// ============================================================
+// 7. FIX #5: Monthly trend as grouped bar with data labels
+// ============================================================
+(function() {
+  // Use dept_delivery (has weekly data) and dept_delivery_monthly for this month
+  // Better: use monthly_delivery but also include current week data
+  const depts = ['\u4ea4\u4ed8\u4e00\u90e8', '\u4ea4\u4ed8\u4e8c\u90e8', '\u4ea4\u4ed8\u4e09\u90e8', '\u4ea4\u4ed8\u516d\u90e8', '\u4ea4\u4ed8\u4e03\u90e8'];
+  const types = ['CV', 'PS', 'RL'];
+  const deptColors = {
+    '\u4ea4\u4ed8\u4e00\u90e8': '#3b82f6',
+    '\u4ea4\u4ed8\u4e8c\u90e8': '#f59e0b',
+    '\u4ea4\u4ed8\u4e09\u90e8': '#8b5cf6',
+    '\u4ea4\u4ed8\u516d\u90e8': '#06b6d4',
+    '\u4ea4\u4ed8\u4e03\u90e8': '#ec4899',
+  };
+
+  // Show grouped bar: each dept has 3 bars (CV/PS/RL) for this week vs 5月累计
+  const datasets = [];
+  depts.forEach(dept => {
+    types.forEach(type => {
+      const thisWeek = DATA.dept_delivery.find(d => d.dept === dept && d.doc_type === type && d.period === DATA.period);
+      const thisMonth = DATA.dept_delivery_monthly.find(d => d.dept === dept && d.doc_type === type);
+      
+      if (thisWeek && thisMonth) {
+        const label = dept + ' ' + type;
+        const color = deptColors[dept] || '#94a3b8';
+        datasets.push({
+          label: label,
+          data: [thisMonth.avg_days, thisWeek.avg_days],
+          backgroundColor: color + 'cc',
+          borderColor: color,
+          borderWidth: 1,
+          borderRadius: 4,
+        });
+      }
+    });
+  });
+
+  new Chart(document.getElementById('chartMonthlyTrend'), {
+    type: 'bar',
+    data: {
+      labels: ['5月累计', '本周'],
+      datasets: datasets,
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: {
+        title: { display: false },
+        legend: { position: 'top', labels: { font: { size: 10 }, boxWidth: 12 } },
+      },
+      scales: {
+        x: { grid: { display: false } },
+        y: { beginAtZero: true, title: { display: true, text: '平均交付天数' }, grid: { color: '#f1f5f9' } }
+      }
+    }
+  });
+})();
+
+// ============================================================
+// 8. 网申变更原因
+// ============================================================
+(function() {
+  const container = document.getElementById('reasonBars');
+  const maxCount = Math.max(...DATA.reason_list.map(r => r.count), 1);
+  DATA.reason_list.forEach((r, i) => {
+    const pct = (r.count / maxCount * 100).toFixed(0);
+    const color = i < 2 ? '#ef4444' : i < 5 ? '#f59e0b' : '#3b82f6';
+    container.innerHTML += '<div class="reason-bar-wrap">'
+      + '<div class="reason-label">' + r.reason + '</div>'
+      + '<div class="reason-bar-bg"><div class="reason-bar" style="width:' + pct + '%;background:' + color + '">' + r.count + '次</div></div>'
+      + '<div class="reason-count">' + r.count + '</div></div>';
+  });
+})();
+
+// ============================================================
+// 9. 售后主管提纲逾期明细表 (Sheet1 data)
 // ============================================================
 (function() {
   const tbody = document.querySelector('#outlineDetailTable tbody');
-  DATA.outline_overdue_persons.forEach(p => {
-    const cls = p.overdue > 0 ? 'tag tag-red' : 'tag tag-green';
-    const label = p.overdue > 0 ? '有逾期' : '无逾期';
-    tbody.innerHTML += `<tr>
-      <td>${p.person}</td>
-      <td class="num">${p.total || 0}</td>
-      <td class="num ${p.overdue > 0 ? 'highlight-red' : ''}">${p.overdue}</td>
-      <td><span class="${cls}">${label}</span></td>
-    </tr>`;
+  DATA.person_outline.forEach(p => {
+    const rate = p.total_clients > 0 ? (p.total_overdue / p.total_clients * 100).toFixed(1) : '0.0';
+    const status = p.total_overdue === 0
+      ? '<span class="tag tag-green">正常</span>'
+      : p.total_overdue >= 2
+        ? '<span class="tag tag-red">需关注</span>'
+        : '<span class="tag tag-amber">轻微</span>';
+    const cls = (v) => v > 0 ? 'highlight-red' : '';
+    tbody.innerHTML += '<tr>'
+      + '<td>' + p.person + '</td>'
+      + '<td class="num">' + p.total_clients + '</td>'
+      + '<td class="num ' + cls(p.total_overdue) + '" style="font-weight:700">' + p.total_overdue + '</td>'
+      + '<td class="num">' + rate + '%</td>'
+      + '<td>' + status + '</td></tr>';
+  });
+})();
+
+// ============================================================
+// 10. FIX #6: No-meeting as horizontal bar chart (no duplicate colors)
+// ============================================================
+(function() {
+  const container = document.getElementById('noMeetingBars');
+  // Use no_data from person_comm (represents customers with no meeting records)
+  const items = DATA.person_comm
+    .filter(p => p.no_data > 0)
+    .map(p => ({ name: p.person, count: p.no_data }))
+    .sort((a, b) => b.count - a.count);
+  
+  const maxVal = Math.max(...items.map(i => i.count), 1);
+  
+  // Generate distinct colors using HSL
+  const total = items.length;
+  items.forEach((item, i) => {
+    const hue = (i * 360 / total + 200) % 360; // Start from blue range, spread evenly
+    const color = 'hsl(' + hue + ', 65%, 55%)';
+    const pct = (item.count / maxVal * 100).toFixed(0);
+    container.innerHTML += '<div class="no-meeting-item">'
+      + '<div class="no-meeting-name">' + item.name + '</div>'
+      + '<div class="no-meeting-bar-bg"><div class="no-meeting-bar" style="width:' + pct + '%;background:' + color + '">' + item.count + '</div></div>'
+      + '<div class="no-meeting-val">' + item.count + '</div></div>';
+  });
+})();
+
+// ============================================================
+// 11. AI率分布 - 按文案主管
+// ============================================================
+(function() {
+  const items = DATA.ai_rate_by_supervisor;
+  const tierColors = { low: '#10b981', mid: '#f59e0b', high: '#ef4444' };
+  const tierLabels = { low: '0-20%', mid: '20-50%', high: '50%+' };
+  new Chart(document.getElementById('chartAiRateSupervisor'), {
+    type: 'bar',
+    data: {
+      labels: items.map(i => i.name),
+      datasets: [
+        { label: '0-20%', data: items.map(i => i.low), backgroundColor: tierColors.low, borderRadius: 2 },
+        { label: '20-50%', data: items.map(i => i.mid), backgroundColor: tierColors.mid, borderRadius: 2 },
+        { label: '50%+', data: items.map(i => i.high), backgroundColor: tierColors.high, borderRadius: 2 },
+      ]
+    },
+    options: {
+      indexAxis: 'y',
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: false }, legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } } },
+      scales: {
+        x: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } },
+        y: { stacked: true, grid: { display: false } }
+      }
+    }
+  });
+})();
+
+// ============================================================
+// 12. AI率分布 - 按部门
+// ============================================================
+(function() {
+  const items = DATA.ai_rate_by_dept;
+  const tierColors = { low: '#10b981', mid: '#f59e0b', high: '#ef4444' };
+  new Chart(document.getElementById('chartAiRateDept'), {
+    type: 'bar',
+    data: {
+      labels: items.map(i => i.dept),
+      datasets: [
+        { label: '0-20%', data: items.map(i => i.low), backgroundColor: tierColors.low, borderRadius: 4 },
+        { label: '20-50%', data: items.map(i => i.mid), backgroundColor: tierColors.mid, borderRadius: 4 },
+        { label: '50%+', data: items.map(i => i.high), backgroundColor: tierColors.high, borderRadius: 4 },
+      ]
+    },
+    options: {
+      responsive: true, maintainAspectRatio: false,
+      plugins: { title: { display: false }, legend: { position: 'top', labels: { font: { size: 11 }, boxWidth: 12 } } },
+      scales: {
+        x: { stacked: true, grid: { display: false } },
+        y: { stacked: true, beginAtZero: true, grid: { color: '#f1f5f9' } }
+      }
+    }
   });
 })();
 </script>
+</div><!-- /mainContent -->
+<div style="text-align:center;padding:8px;color:#94a3b8;font-size:11px">build 2026-06-01T17:08 · v4</div>
 </body>
 </html>
